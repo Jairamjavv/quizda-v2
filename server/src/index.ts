@@ -13,7 +13,8 @@ const defaultAllowed = [
   "https://quizda-worker-prod.b-jairam0512.workers.dev",
   "http://localhost:5173", // Local Vite dev server
   "http://localhost:3000", // Alternative local port
-  "https://quizda.vercel.app", // Add your Vercel domain when deployed
+  "https://quizda-v2-client.pages.dev", // Cloudflare Pages production
+  "https://b1c9c6a2.quizda-v2-client.pages.dev", // Cloudflare Pages preview
 ];
 const allowedOriginsEnv =
   typeof process !== "undefined" && process.env && process.env.ALLOWED_ORIGINS
