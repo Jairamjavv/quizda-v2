@@ -3,9 +3,11 @@
  *
  * This file provides typed API calls for the frontend.
  * Each function handles the request/response pattern and error handling.
+ * Now uses cookie-based authentication with automatic token refresh.
  */
 
 import { apiClient } from "./api";
+import { sessionManager } from "./sessionManager";
 
 // ============ Types ============
 
@@ -97,31 +99,25 @@ export const apiHealth = async (): Promise<HealthResponse> => {
 };
 
 /**
- * User login
+ * User login - now uses cookie-based authentication
  */
 export const apiLogin = async (data: LoginRequest): Promise<LoginResponse> => {
   const response = await apiClient.post<LoginResponse>("/api/login", data);
-  const { token } = response.data;
 
-  // Store token in localStorage for future requests
-  if (token) {
-    localStorage.setItem("authToken", token);
-  }
-
-  // Store user info so UI can route and display profile
+  // Cookies are set automatically by the server
+  // Update session manager with user data
   if (response.data.user) {
-    try {
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-    } catch (e) {
-      // ignore storage errors
-    }
+    sessionManager.setUser({
+      ...response.data.user,
+      role: response.data.user.role as "admin" | "contributor" | "attempter",
+    });
   }
 
   return response.data;
 };
 
 /**
- * User registration
+ * User registration - now uses cookie-based authentication
  */
 export const apiRegister = async (
   data: RegisterRequest
@@ -130,9 +126,18 @@ export const apiRegister = async (
     "/api/register",
     data
   );
+
+  // Cookies are set automatically by the server
+  // Update session manager with user data
+  if (response.data.user) {
+    sessionManager.setUser({
+      ...response.data.user,
+      role: response.data.user.role as "admin" | "contributor" | "attempter",
+    });
+  }
+
   return response.data;
 };
-
 /**
  * Forgot password request
  */
@@ -155,9 +160,15 @@ export const apiGetQuizzes = async (): Promise<QuizResponse[]> => {
 };
 
 /**
- * Clear authentication (logout)
+ * Clear authentication (logout) - uses cookie-based session
  */
-export const apiLogout = (): void => {
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("user");
+export const apiLogout = async (): Promise<void> => {
+  try {
+    await apiClient.post("/api/logout");
+  } catch (error) {
+    console.error("Logout API error:", error);
+  } finally {
+    // Clear session manager
+    sessionManager.clearUser();
+  }
 };

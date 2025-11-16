@@ -2,10 +2,18 @@ import { Hono } from "hono";
 import { getDb, users } from "./db";
 import type { Env } from "./types";
 import { eq } from "drizzle-orm";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+  getSessionFromRequest,
+} from "./utils/session";
+import { setAuthCookies, clearAuthCookies, getCookie } from "./utils/cookies";
 
 /**
- * Worker-compatible auth routes (no firebase-admin dependency)
- * Uses D1 for storage and Web Crypto API for password hashing
+ * Worker-compatible auth routes with session management
+ * Uses D1 for storage, Web Crypto API for password hashing,
+ * and HTTP-only cookies for secure session management
  */
 const workerAuth = new Hono<{ Bindings: Env }>();
 
@@ -24,17 +32,6 @@ async function verifyPassword(
 ): Promise<boolean> {
   const passwordHash = await hashPassword(password);
   return passwordHash === hash;
-}
-
-// Generate a simple JWT-like token (for demo - use proper JWT library in production)
-async function generateToken(userId: number, email: string): Promise<string> {
-  const payload = {
-    userId,
-    email,
-    iat: Date.now(),
-    exp: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
-  };
-  return btoa(JSON.stringify(payload));
 }
 
 workerAuth.post("/register", async (c) => {
@@ -87,10 +84,17 @@ workerAuth.post("/register", async (c) => {
       return c.json({ error: "Failed to create user" }, 500);
     }
 
-    // Generate token
-    const token = await generateToken(result.id, result.email);
+    // Generate access and refresh tokens
+    const accessToken = await generateAccessToken(
+      result.id,
+      result.email,
+      result.role,
+      result.firebaseUid || undefined
+    );
+    const refreshToken = await generateRefreshToken(result.id, result.email);
 
-    return c.json(
+    // Create response with user data
+    const response = c.json(
       {
         message: "User registered successfully",
         user: {
@@ -99,10 +103,14 @@ workerAuth.post("/register", async (c) => {
           username: result.username,
           role: result.role,
         },
-        token,
+        token: accessToken, // For backward compatibility
       },
       201
     );
+
+    // Set authentication cookies
+    const isProduction = c.env.ENVIRONMENT === "production";
+    return setAuthCookies(response, accessToken, refreshToken, isProduction);
   } catch (error: any) {
     console.error("Registration error:", error);
     return c.json(
@@ -151,10 +159,17 @@ workerAuth.post("/login", async (c) => {
       );
     }
 
-    // Generate token
-    const token = await generateToken(user.id, user.email);
+    // Generate access and refresh tokens
+    const accessToken = await generateAccessToken(
+      user.id,
+      user.email,
+      user.role,
+      user.firebaseUid || undefined
+    );
+    const refreshToken = await generateRefreshToken(user.id, user.email);
 
-    return c.json({
+    // Create response with user data
+    const response = c.json({
       message: "Login successful",
       user: {
         id: user.id,
@@ -162,8 +177,12 @@ workerAuth.post("/login", async (c) => {
         username: user.username,
         role: user.role,
       },
-      token,
+      token: accessToken, // For backward compatibility
     });
+
+    // Set authentication cookies
+    const isProduction = c.env.ENVIRONMENT === "production";
+    return setAuthCookies(response, accessToken, refreshToken, isProduction);
   } catch (error: any) {
     console.error("Login error:", error);
     return c.json({ error: "Login failed", details: error.message }, 500);
@@ -172,24 +191,18 @@ workerAuth.post("/login", async (c) => {
 
 workerAuth.get("/me", async (c) => {
   try {
-    const authHeader = c.req.header("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return c.json({ error: "No token provided" }, 401);
-    }
+    // Get session from request (checks both cookie and Authorization header)
+    const session = getSessionFromRequest(c.req.raw);
 
-    const token = authHeader.substring(7);
-    const payload = JSON.parse(atob(token));
-
-    // Check expiration
-    if (payload.exp < Date.now()) {
-      return c.json({ error: "Token expired" }, 401);
+    if (!session) {
+      return c.json({ error: "No valid session found" }, 401);
     }
 
     const db = getDb(c.env);
     const user = await db
       .select()
       .from(users)
-      .where(eq(users.id, payload.userId))
+      .where(eq(users.id, session.userId))
       .get();
 
     if (!user) {
@@ -202,11 +215,74 @@ workerAuth.get("/me", async (c) => {
         email: user.email,
         username: user.username,
         role: user.role,
+        firebaseUid: user.firebaseUid,
       },
     });
   } catch (error: any) {
     console.error("Auth error:", error);
     return c.json({ error: "Authentication failed" }, 401);
+  }
+});
+
+// Logout endpoint - clears authentication cookies
+workerAuth.post("/logout", async (c) => {
+  try {
+    const response = c.json({ message: "Logged out successfully" });
+    return clearAuthCookies(response);
+  } catch (error: any) {
+    console.error("Logout error:", error);
+    return c.json({ error: "Logout failed" }, 500);
+  }
+});
+
+// Refresh token endpoint - generates new access token using refresh token
+workerAuth.post("/refresh", async (c) => {
+  try {
+    // Get refresh token from cookie
+    const refreshToken = getCookie(c.req.raw, "refresh_token");
+
+    if (!refreshToken) {
+      return c.json({ error: "No refresh token provided" }, 401);
+    }
+
+    // Verify refresh token
+    const payload = verifyRefreshToken(refreshToken);
+    if (!payload) {
+      return c.json({ error: "Invalid or expired refresh token" }, 401);
+    }
+
+    // Get user from database to ensure they still exist
+    const db = getDb(c.env);
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, payload.userId))
+      .get();
+
+    if (!user) {
+      return c.json({ error: "User not found" }, 404);
+    }
+
+    // Generate new access token (keep same refresh token)
+    const newAccessToken = await generateAccessToken(
+      user.id,
+      user.email,
+      user.role,
+      user.firebaseUid || undefined
+    );
+
+    // Create response
+    const response = c.json({
+      message: "Token refreshed successfully",
+      token: newAccessToken, // For backward compatibility
+    });
+
+    // Update access token cookie (refresh token stays the same)
+    const isProduction = c.env.ENVIRONMENT === "production";
+    return setAuthCookies(response, newAccessToken, refreshToken, isProduction);
+  } catch (error: any) {
+    console.error("Token refresh error:", error);
+    return c.json({ error: "Token refresh failed" }, 500);
   }
 });
 
