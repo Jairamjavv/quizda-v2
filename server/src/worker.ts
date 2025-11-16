@@ -11,8 +11,19 @@ const defaultAllowed = [
   "https://quizda-worker-prod.b-jairam0512.workers.dev",
   "http://localhost:5173",
   "http://localhost:3000",
-  "https://quizda.vercel.app",
+  "https://quizda-v2-client.pages.dev", // Cloudflare Pages production
 ];
+
+// Function to check if origin is allowed (supports wildcards for preview URLs)
+function isOriginAllowed(origin: string, allowedOrigins: string[]): boolean {
+  // Check exact matches
+  if (allowedOrigins.includes(origin)) return true;
+
+  // Allow all Cloudflare Pages preview URLs (*.quizda-v2-client.pages.dev)
+  if (origin.endsWith(".quizda-v2-client.pages.dev")) return true;
+
+  return false;
+}
 
 app.use("*", async (c, next) => {
   await next();
@@ -29,12 +40,14 @@ app.use("*", async (c, next) => {
       : defaultAllowed;
 
   const origin = c.req.header("origin");
-  const allow =
-    origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  // Check if origin is allowed (including wildcard matches)
+  const isAllowed = origin && isOriginAllowed(origin, allowedOrigins);
+  const allow = isAllowed ? origin : null;
   if (allow) {
     c.header("Access-Control-Allow-Origin", allow);
-    c.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    c.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
     c.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    c.header("Access-Control-Allow-Credentials", "true"); // Required for cookies
   }
 });
 
@@ -53,13 +66,16 @@ app.options("*", (c) => {
       : defaultAllowed;
 
   const origin = c.req.header("origin");
-  const allow =
-    origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  const isAllowed = origin && isOriginAllowed(origin, allowedOrigins);
+  const allow = isAllowed ? origin : null;
   const headers: Record<string, string> = {
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
-  if (allow) headers["Access-Control-Allow-Origin"] = allow;
+  if (allow) {
+    headers["Access-Control-Allow-Origin"] = allow;
+    headers["Access-Control-Allow-Credentials"] = "true"; // Required for cookies
+  }
   return new Response(null, { status: 204, headers });
 });
 
