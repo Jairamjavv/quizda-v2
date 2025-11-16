@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { ThemeProvider } from '@mui/material/styles'
-import { CssBaseline, Container, AppBar, Toolbar, Typography, IconButton, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom'
-import Brightness4Icon from '@mui/icons-material/Brightness4'
-import Brightness7Icon from '@mui/icons-material/Brightness7'
+import { CssBaseline, Container } from '@mui/material'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { designTokens } from './theme/designTokens'
 import { getMuiTheme } from './theme/designSystem'
 import AttempterDashboard from './components/Dashboard/AttempterDashboard'
@@ -14,10 +12,10 @@ import LandingPage from './components/LandingPage/LandingPage'
 import QuizCatalog from './components/QuizCatalog'
 import Login from './components/UserAuthentication/Login/index'
 import Register from './components/UserAuthentication/Register/index'
+import Header from './components/Header'
 
 const App: React.FC = () => {
   const [mode, setMode] = useState<'light' | 'dark'>('light')
-  const [role, setRole] = useState<'attempter' | 'contributor' | 'admin'>('attempter')
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', mode)
@@ -44,44 +42,7 @@ const App: React.FC = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <AppBar position="sticky" color="transparent" elevation={0} sx={{ bgcolor: 'var(--surface)' }}>
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'var(--text-primary)' }}>
-              <Button component={Link} to="/" sx={{ textTransform: 'none', color: 'var(--text-primary)' }}>
-                Quizda
-              </Button>
-            </Typography>
-
-            <Button component={Link} to="/login" sx={{ color: 'var(--text-primary)', mr: 1 }}>
-              Login
-            </Button>
-            <Button component={Link} to="/register" sx={{ color: 'var(--text-primary)', mr: 2 }}>
-              Register
-            </Button>
-
-            <FormControl size="small" sx={{ minWidth: 140, mr: 2 }}>
-              <InputLabel id="role-select-label">Role</InputLabel>
-              <Select
-                labelId="role-select-label"
-                value={role}
-                label="Role"
-                onChange={(e) => setRole(e.target.value as any)}
-                sx={{ color: 'var(--text-primary)' }}
-              >
-                <MenuItem value="attempter">Attempter</MenuItem>
-                <MenuItem value="contributor">Contributor</MenuItem>
-                <MenuItem value="admin">Admin</MenuItem>
-              </Select>
-            </FormControl>
-
-            <IconButton
-              onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
-              sx={{ color: 'var(--text-primary)' }}
-            >
-              {mode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
-            </IconButton>
-          </Toolbar>
-        </AppBar>
+        <Header mode={mode} onToggleMode={() => setMode(mode === 'light' ? 'dark' : 'light')} />
 
         <Container maxWidth="md" sx={{ mt: 2 }}>
           <Routes>
