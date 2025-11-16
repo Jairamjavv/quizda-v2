@@ -1,0 +1,24 @@
+name = "quizda-worker"
+main = "./dist/worker.mjs"
+compatibility_date = "2025-11-16"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[build]
+command = "npm run build:worker"
+
+
+[env.production]
+name = "quizda-worker-prod"
+routes = [{ pattern = "https://api.quizda.com/*", zone_name = "quizda.com" }]
+vars = { ENVIRONMENT = "production", BACKEND_URL = "https://api.quizda-backend.com" }
+
+[d1_databases]
+[[d1_databases]]
+binding = "DB"
+database_name = "quizda-d1-db"
+database_id = "388dd96b-c43b-470a-afec-87bf02595fe5"
+
+[[r2_buckets]]
+binding = "MY_BUCKET"
+bucket_name = "quizda-quizzes"

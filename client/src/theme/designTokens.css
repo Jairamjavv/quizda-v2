@@ -1,0 +1,71 @@
+/* Quizda Design Tokens - CSS variables for Light & Dark modes */
+
+:root {
+  /* Brand / Primary Colors */
+  --primary-green: #2e7d50;
+  --primary-green-light: #e8f3ed;
+  --primary-green-dark: #1f5c3a;
+
+  --primary-orange: #d9822b;
+  --primary-orange-light: #fff4e5;
+  --primary-orange-dark: #a56620;
+
+  /* Neutral System */
+  --background: #fafafa;
+  --surface: #f3f4f3;
+  --surface-hover: #ebeceb;
+  --text-primary: #1c1c1c;
+  --text-secondary: #5d5d5d;
+  --text-disabled: #a6a6a6;
+
+  /* Accents */
+  --accent-blue: #497aa7;
+  --accent-purple: #8566c2;
+  --accent-yellow: #e0c865;
+
+  /* Status */
+  --success: #2e7d50;
+  --warning: #e5962e;
+  --error: #c64545;
+  --info: #497aa7;
+
+  /* Surface & backgrounds */
+  --card-radius: 8px;
+  --card-padding: 16px;
+}
+
+/* Dark mode tokens - set on html[data-theme="dark"] */
+html[data-theme="dark"] {
+  --background: #121416;
+  --surface: #1a1c1e;
+  --surface-hover: #232527;
+  --divider: #2c2e30;
+
+  --text-primary: #e6e6e6;
+  --text-secondary: #b3b3b3;
+  --text-disabled: #6e6e6e;
+
+  --primary-green: #4ebf7a;
+  --primary-green-subtle: #1e3b2a;
+
+  --primary-orange: #e6a34f;
+  --primary-orange-subtle: #3f2d1b;
+
+  --accent-blue: #6ba8d1;
+  --accent-purple: #a890da;
+  --accent-yellow: #ddbb5a;
+
+  --success: #4ebf7a;
+  --warning: #e6a34f;
+  --error: #d96a6a;
+  --info: #6ba8d1;
+}
+
+/* Minimal reset to ensure backgrounds & text tokens are used */
+body {
+  background: var(--background);
+  color: var(--text-primary);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial;
+  margin: 0;
+}

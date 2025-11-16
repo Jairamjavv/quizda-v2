@@ -1,0 +1,40 @@
+{
+    "name": "quizda-server",
+    "version": "0.1.0",
+    "private": true,
+    "main": "dist/index.js",
+    "scripts": {
+        "start": "node dist/index.js",
+        "dev": "npm run build && npm run start:dist",
+        "db:migrate": "npx sequelize-cli db:migrate",
+        "db:seed": "npx sequelize-cli db:seed:all",
+        "db:generate": "drizzle-kit generate",
+        "db:push": "wrangler d1 execute quizda-d1-db --file=./drizzle/0000_keen_xavin.sql",
+        "build:node": "esbuild src/index.ts --bundle --platform=node --target=node18 --outfile=dist/index.js --sourcemap",
+        "build:worker": "esbuild src/worker.ts --bundle --platform=neutral --target=es2022 --format=esm --outfile=dist/worker.mjs --sourcemap",
+        "build": "npm run build:node && npm run build:worker",
+        "start:dist": "node dist/index.js",
+        "deploy": "npx wrangler deploy",
+        "deploy:db": "npm run cf-typegen && npm run deploy"
+    },
+    "dependencies": {
+        "@cloudflare/workers-types": "^4.20251115.0",
+        "dotenv": "^16.3.1",
+        "drizzle-kit": "^0.31.7",
+        "drizzle-orm": "^0.44.7",
+        "firebase": "^9.0.0",
+        "firebase-admin": "^13.6.0",
+        "hono": "^4.10.6",
+        "sequelize": "^6.31.0",
+        "sqlite3": "^5.1.6"
+    },
+    "optionalDependencies": {
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^4.6.3"
+    },
+    "devDependencies": {
+        "esbuild": "^0.18.0",
+        "sequelize-cli": "^6.6.0",
+        "wrangler": "^4.47.0"
+    }
+}

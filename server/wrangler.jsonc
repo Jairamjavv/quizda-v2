@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "quizda-worker-prod",
+  "main": "src/worker.ts",
+  "compatibility_date": "2025-04-18",
+  "observability": {
+    "enabled": true
+  }
+  ,
+  "env": {
+    "production": {
+      "name": "quizda-worker-prod",
+    //   "routes": [{ "pattern": "https://api.quizda.com/*", "zone_name": "quizda.com" }],
+      "vars": { "ENVIRONMENT": "production", "BACKEND_URL": "https://api.quizda-backend.com" },
+      "r2_buckets": [
+        {
+          "binding": "MY_BUCKET",
+          "bucket_name": "quizda-quizzes"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "quizda-d1-db",
+          "database_id": "388dd96b-c43b-470a-afec-87bf02595fe5"
+        }
+      ],
+      "secrets_store_secrets": [
+        {
+          "store_id": "19cc9317bf484783abc66be7ff760094",
+          "binding": "SECRET",
+          "secret_name": "quizda-d1-db-secret"
+        }
+      ]
+    }
+  }
+}
