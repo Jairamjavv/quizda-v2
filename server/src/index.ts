@@ -14,8 +14,19 @@ const defaultAllowed = [
   "http://localhost:5173", // Local Vite dev server
   "http://localhost:3000", // Alternative local port
   "https://quizda-v2-client.pages.dev", // Cloudflare Pages production
-  "https://b1c9c6a2.quizda-v2-client.pages.dev", // Cloudflare Pages preview
 ];
+
+// Function to check if origin is allowed (supports wildcards for preview URLs)
+function isOriginAllowed(origin: string, allowedOrigins: string[]): boolean {
+  // Check exact matches
+  if (allowedOrigins.includes(origin)) return true;
+
+  // Allow all Cloudflare Pages preview URLs (*.quizda-v2-client.pages.dev)
+  if (origin.endsWith(".quizda-v2-client.pages.dev")) return true;
+
+  return false;
+}
+
 const allowedOriginsEnv =
   typeof process !== "undefined" && process.env && process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(",")
@@ -30,26 +41,30 @@ const allowedOrigins =
 app.use("*", async (c, next) => {
   await next();
   const origin = c.req.header("origin");
-  // If the request Origin is in the allowlist, echo it. Otherwise, fall back to the first allowed origin.
-  const allow =
-    origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  // Check if origin is allowed (including wildcard matches)
+  const isAllowed = origin && isOriginAllowed(origin, allowedOrigins);
+  const allow = isAllowed ? origin : null;
   if (allow) {
     c.header("Access-Control-Allow-Origin", allow);
-    c.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    c.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
     c.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    c.header("Access-Control-Allow-Credentials", "true"); // Required for cookies
   }
 });
 
 // Respond to preflight requests
 app.options("*", (c) => {
   const origin = c.req.header("origin");
-  const allow =
-    origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  const isAllowed = origin && isOriginAllowed(origin, allowedOrigins);
+  const allow = isAllowed ? origin : null;
   const headers: Record<string, string> = {
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
-  if (allow) headers["Access-Control-Allow-Origin"] = allow;
+  if (allow) {
+    headers["Access-Control-Allow-Origin"] = allow;
+    headers["Access-Control-Allow-Credentials"] = "true"; // Required for cookies
+  }
   return new Response(null, { status: 204, headers });
 });
 

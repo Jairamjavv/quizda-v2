@@ -5,8 +5,8 @@
 ### Frontend (Client)
 
 - **Production URL**: https://quizda-v2-client.pages.dev
-- **Latest Preview**: https://b1c9c6a2.quizda-v2-client.pages.dev
 - **Platform**: Cloudflare Pages
+- **Note**: Each deployment creates a unique preview URL (e.g., `https://[hash].quizda-v2-client.pages.dev`)
 
 ### Backend (API)
 
