@@ -7,6 +7,7 @@ import {
   rateLimitMiddleware,
   csrfProtection,
 } from "./middleware/security";
+import { AuthController } from "./controllers/AuthController";
 
 // Create a Hono app for Cloudflare Worker / ESM builds (worker-only)
 const app = new Hono<{ Bindings: Env }>();
@@ -108,26 +109,11 @@ app.route("/api/attempts", attemptRoutes); // Attempt routes: /api/attempts, /ap
 app.route("/api/csrf", csrfRoutes); // CSRF routes: /api/csrf/token
 
 // Backward compatibility: Keep old auth routes at /api/ level
-app.post("/api/register", async (c) => {
-  const response = await authRoutes.fetch(c.req.raw, c.env as any);
-  return new Response(response.body, response);
-});
-app.post("/api/login", async (c) => {
-  const response = await authRoutes.fetch(c.req.raw, c.env as any);
-  return new Response(response.body, response);
-});
-app.get("/api/me", async (c) => {
-  const response = await authRoutes.fetch(c.req.raw, c.env as any);
-  return new Response(response.body, response);
-});
-app.post("/api/logout", async (c) => {
-  const response = await authRoutes.fetch(c.req.raw, c.env as any);
-  return new Response(response.body, response);
-});
-app.post("/api/refresh", async (c) => {
-  const response = await authRoutes.fetch(c.req.raw, c.env as any);
-  return new Response(response.body, response);
-});
+app.post("/api/register", (c) => AuthController.register(c));
+app.post("/api/login", (c) => AuthController.login(c));
+app.get("/api/me", (c) => AuthController.getMe(c));
+app.post("/api/logout", (c) => AuthController.logout(c));
+app.post("/api/refresh", (c) => AuthController.refreshToken(c));
 
 // OpenAPI and docs
 app.get("/api/openapi.json", (c) => c.json(openapi));
