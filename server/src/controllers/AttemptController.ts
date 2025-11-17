@@ -6,7 +6,8 @@
 import { Context } from "hono";
 import type { Env } from "../types";
 import { AttemptRepository } from "../repositories/AttemptRepository";
-import { verifyAccessToken } from "../utils/session";
+import { getSessionFromRequest } from "../utils/session";
+import { getDb } from "../db";
 
 export class AttemptController {
   /**
@@ -15,18 +16,11 @@ export class AttemptController {
    */
   static async createAttempt(c: Context<{ Bindings: Env }>) {
     try {
-      // Get authenticated user
-      const token =
-        c.req.header("cookie")?.match(/accessToken=([^;]+)/)?.[1] ||
-        c.req.header("Authorization")?.replace("Bearer ", "");
+      // Get authenticated user session
+      const session = getSessionFromRequest(c.req.raw);
 
-      if (!token) {
+      if (!session) {
         return c.json({ error: "Authentication required" }, 401);
-      }
-
-      const payload = await verifyAccessToken(token, c.env.JWT_SECRET);
-      if (!payload) {
-        return c.json({ error: "Invalid token" }, 401);
       }
 
       const input = await c.req.json();
@@ -36,14 +30,12 @@ export class AttemptController {
         return c.json({ error: "Quiz ID and score are required" }, 400);
       }
 
-      const attemptRepo = new AttemptRepository(c.env);
+      const db = getDb(c.env);
+      const attemptRepo = new AttemptRepository(db);
       const attempt = await attemptRepo.create({
-        userId: payload.userId,
+        userId: session.userId,
         quizId: input.quizId,
-        score: input.score,
-        answers: input.answers || {},
-        timeSpent: input.timeSpent || 0,
-        completedAt: new Date().toISOString(),
+        totalQuestions: input.totalQuestions || 0,
       });
 
       return c.json(attempt, 201);
@@ -69,21 +61,15 @@ export class AttemptController {
       }
 
       // Verify authentication
-      const token =
-        c.req.header("cookie")?.match(/accessToken=([^;]+)/)?.[1] ||
-        c.req.header("Authorization")?.replace("Bearer ", "");
+      const session = getSessionFromRequest(c.req.raw);
 
-      if (!token) {
-        return c.json({ error: "Authentication required" }, 401);
-      }
-
-      const payload = await verifyAccessToken(token, c.env.JWT_SECRET);
-      if (!payload || payload.userId !== userId) {
+      if (!session || session.userId !== userId) {
         return c.json({ error: "Unauthorized" }, 403);
       }
 
-      const attemptRepo = new AttemptRepository(c.env);
-      const attempts = await attemptRepo.findByUserId(userId);
+      const db = getDb(c.env);
+      const attemptRepo = new AttemptRepository(db);
+      const attempts = await attemptRepo.findByUser(userId);
 
       return c.json(attempts);
     } catch (error: any) {
@@ -107,8 +93,9 @@ export class AttemptController {
         return c.json({ error: "Invalid quiz ID" }, 400);
       }
 
-      const attemptRepo = new AttemptRepository(c.env);
-      const attempts = await attemptRepo.findByQuizId(quizId);
+      const db = getDb(c.env);
+      const attemptRepo = new AttemptRepository(db);
+      const attempts = await attemptRepo.findByQuiz(quizId);
 
       return c.json(attempts);
     } catch (error: any) {
@@ -132,7 +119,8 @@ export class AttemptController {
         return c.json({ error: "Invalid attempt ID" }, 400);
       }
 
-      const attemptRepo = new AttemptRepository(c.env);
+      const db = getDb(c.env);
+      const attemptRepo = new AttemptRepository(db);
       const attempt = await attemptRepo.findById(id);
 
       if (!attempt) {

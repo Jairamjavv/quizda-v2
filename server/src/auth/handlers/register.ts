@@ -30,12 +30,12 @@ export async function handleRegister(c: Context<{ Bindings: Env }>) {
       role: validation.role as "admin" | "contributor" | "attempter",
     });
 
-    // Create response with user data
+    // Create response with user data (NO TOKEN in response body for security)
     const response = c.json(
       {
         message: result.message,
         user: result.user,
-        token: result.token,
+        // Token is set in HTTP-only cookie, not in response body
       },
       201
     );

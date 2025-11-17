@@ -22,7 +22,7 @@ export interface CreateQuizData {
 }
 
 export class QuizRepository {
-  constructor(private db: DrizzleD1Database) {}
+  constructor(private db: DrizzleD1Database<any>) {}
 
   /**
    * Find quiz by ID

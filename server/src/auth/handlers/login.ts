@@ -64,7 +64,7 @@ export async function handleLogin(c: Context<{ Bindings: Env }>) {
     );
     const refreshToken = await generateRefreshToken(user.id, user.email);
 
-    // Create response with user data
+    // Create response with user data (NO TOKEN in response body for security)
     const response = c.json({
       message: "Login successful",
       user: {
@@ -73,7 +73,7 @@ export async function handleLogin(c: Context<{ Bindings: Env }>) {
         username: user.username,
         role: user.role,
       },
-      token: accessToken, // For backward compatibility
+      // Token is set in HTTP-only cookie, not in response body
     });
 
     // Set authentication cookies

@@ -16,7 +16,7 @@ export interface CreateAttemptData {
 }
 
 export class AttemptRepository {
-  constructor(private db: DrizzleD1Database) {}
+  constructor(private db: DrizzleD1Database<any>) {}
 
   /**
    * Find attempt by ID

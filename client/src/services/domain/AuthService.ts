@@ -38,15 +38,13 @@ export class AuthService {
   /**
    * Login user
    */
-  static async login(
-    credentials: LoginCredentials
-  ): Promise<{ user: User; token: string }> {
+  static async login(credentials: LoginCredentials): Promise<{ user: User }> {
     try {
       const response = await apiClient.post("/api/login", credentials);
 
-      if (response.data.user && response.data.token) {
+      if (response.data.user) {
         this.setUser(response.data.user);
-        this.setToken(response.data.token);
+        // Token is in HTTP-only cookie, no need to store it
       }
 
       return response.data;
@@ -58,15 +56,13 @@ export class AuthService {
   /**
    * Register new user
    */
-  static async register(
-    data: RegisterData
-  ): Promise<{ user: User; token: string }> {
+  static async register(data: RegisterData): Promise<{ user: User }> {
     try {
       const response = await apiClient.post("/api/register", data);
 
-      if (response.data.user && response.data.token) {
+      if (response.data.user) {
         this.setUser(response.data.user);
-        this.setToken(response.data.token);
+        // Token is in HTTP-only cookie, no need to store it
       }
 
       return response.data;
@@ -109,7 +105,9 @@ export class AuthService {
    * Check if user is authenticated
    */
   static isAuthenticated(): boolean {
-    return this.getUser() !== null && this.getToken() !== null;
+    // Only check if user exists in localStorage
+    // Token is in HTTP-only cookie and handled by the browser
+    return this.getUser() !== null;
   }
 
   /**
@@ -127,44 +125,10 @@ export class AuthService {
   }
 
   /**
-   * Get auth token
-   */
-  static getToken(): string | null {
-    return LocalStorageService.getItem<string | null>(
-      STORAGE_KEYS.AUTH_TOKEN,
-      null
-    );
-  }
-
-  /**
-   * Set auth token
-   */
-  static setToken(token: string): void {
-    LocalStorageService.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
-  }
-
-  /**
    * Clear session data
    */
   static clearSession(): void {
     LocalStorageService.removeItem(STORAGE_KEYS.USER);
-    LocalStorageService.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-  }
-
-  /**
-   * Refresh authentication token
-   */
-  static async refreshToken(): Promise<string | null> {
-    try {
-      const response = await apiClient.post("/api/refresh");
-      if (response.data.token) {
-        this.setToken(response.data.token);
-        return response.data.token;
-      }
-      return null;
-    } catch (error) {
-      this.clearSession();
-      return null;
-    }
+    // Tokens are in HTTP-only cookies and cleared by logout endpoint
   }
 }

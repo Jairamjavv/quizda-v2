@@ -53,11 +53,7 @@ const processQueue = (error: any = null) => {
 apiClient.interceptors.request.use(
   (config) => {
     // Cookies are automatically included due to withCredentials: true
-    // Keep backward compatibility with Bearer token if present
-    const token = localStorage.getItem("authToken");
-    if (token && !config.headers.Authorization) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // No need to manually set Authorization header
     return config;
   },
   (error) => {
@@ -123,8 +119,7 @@ apiClient.interceptors.response.use(
         processQueue(refreshError);
         isRefreshing = false;
 
-        // Clear local storage
-        localStorage.removeItem("authToken");
+        // Clear user data (tokens are in HTTP-only cookies)
         localStorage.removeItem("user");
 
         // Redirect to login page only if not already on auth pages

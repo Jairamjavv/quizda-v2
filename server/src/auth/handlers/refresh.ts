@@ -40,10 +40,10 @@ export async function handleRefreshToken(c: Context<{ Bindings: Env }>) {
       user.firebaseUid || undefined
     );
 
-    // Create response
+    // Create response (NO TOKEN in response body for security)
     const response = c.json({
       message: "Token refreshed successfully",
-      token: newAccessToken, // For backward compatibility
+      // Token is set in HTTP-only cookie, not in response body
     });
 
     // Update access token cookie (refresh token stays the same)

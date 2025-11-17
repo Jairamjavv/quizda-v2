@@ -70,14 +70,8 @@ export function useAuth() {
     }
   }, []);
 
-  const refreshToken = useCallback(async () => {
-    try {
-      await AuthService.refreshToken();
-    } catch (err: any) {
-      setError(err.message);
-      setUser(null);
-    }
-  }, []);
+  // Token refresh is handled automatically by axios interceptor
+  // No manual refresh needed
 
   useEffect(() => {
     checkAuth();
@@ -91,7 +85,6 @@ export function useAuth() {
     login,
     register,
     logout,
-    refreshToken,
     checkAuth,
   };
 }

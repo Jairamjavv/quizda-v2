@@ -108,21 +108,26 @@ app.route("/api/attempts", attemptRoutes); // Attempt routes: /api/attempts, /ap
 app.route("/api/csrf", csrfRoutes); // CSRF routes: /api/csrf/token
 
 // Backward compatibility: Keep old auth routes at /api/ level
-app.post("/api/register", (c) =>
-  authRoutes.fetch(c.req.raw, c.env as any).then((r) => new Response(r.body, r))
-);
-app.post("/api/login", (c) =>
-  authRoutes.fetch(c.req.raw, c.env as any).then((r) => new Response(r.body, r))
-);
-app.get("/api/me", (c) =>
-  authRoutes.fetch(c.req.raw, c.env as any).then((r) => new Response(r.body, r))
-);
-app.post("/api/logout", (c) =>
-  authRoutes.fetch(c.req.raw, c.env as any).then((r) => new Response(r.body, r))
-);
-app.post("/api/refresh", (c) =>
-  authRoutes.fetch(c.req.raw, c.env as any).then((r) => new Response(r.body, r))
-);
+app.post("/api/register", async (c) => {
+  const response = await authRoutes.fetch(c.req.raw, c.env as any);
+  return new Response(response.body, response);
+});
+app.post("/api/login", async (c) => {
+  const response = await authRoutes.fetch(c.req.raw, c.env as any);
+  return new Response(response.body, response);
+});
+app.get("/api/me", async (c) => {
+  const response = await authRoutes.fetch(c.req.raw, c.env as any);
+  return new Response(response.body, response);
+});
+app.post("/api/logout", async (c) => {
+  const response = await authRoutes.fetch(c.req.raw, c.env as any);
+  return new Response(response.body, response);
+});
+app.post("/api/refresh", async (c) => {
+  const response = await authRoutes.fetch(c.req.raw, c.env as any);
+  return new Response(response.body, response);
+});
 
 // OpenAPI and docs
 app.get("/api/openapi.json", (c) => c.json(openapi));
