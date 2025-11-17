@@ -3,9 +3,11 @@ import { getDb, users } from "../../db";
 import { eq } from "drizzle-orm";
 import { generateAccessToken, verifyRefreshToken } from "../../utils/session";
 import { setAuthCookies, getCookie } from "../../utils/cookies";
-import type { Env } from "../../types";
+import type { Env, Variables } from "../../types";
 
-export async function handleRefreshToken(c: Context<{ Bindings: Env }>) {
+export async function handleRefreshToken(
+  c: Context<{ Bindings: Env; Variables: Variables }>
+) {
   try {
     // Get refresh token from cookie
     const refreshToken = getCookie(c.req.raw, "refresh_token");

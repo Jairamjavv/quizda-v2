@@ -2,9 +2,11 @@ import { Context } from "hono";
 import { getDb, users } from "../../db";
 import { eq } from "drizzle-orm";
 import { getSessionFromRequest } from "../../utils/session";
-import type { Env } from "../../types";
+import type { Env, Variables } from "../../types";
 
-export async function handleGetMe(c: Context<{ Bindings: Env }>) {
+export async function handleGetMe(
+  c: Context<{ Bindings: Env; Variables: Variables }>
+) {
   try {
     // Debug: Log headers
     const cookieHeader = c.req.header("Cookie");

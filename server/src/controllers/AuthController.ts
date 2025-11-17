@@ -4,7 +4,7 @@
  */
 
 import { Context } from "hono";
-import type { Env } from "../types";
+import type { Env, Variables } from "../types";
 import { setAuthCookies, clearAuthCookies } from "../utils/cookies";
 import { getSessionFromRequest } from "../utils/session";
 import { handleRegister } from "../auth/handlers/register";
@@ -18,7 +18,7 @@ export class AuthController {
    * POST /api/register
    * Register a new user
    */
-  static async register(c: Context<{ Bindings: Env }>) {
+  static async register(c: Context<{ Bindings: Env; Variables: Variables }>) {
     return handleRegister(c);
   }
 
@@ -26,7 +26,7 @@ export class AuthController {
    * POST /api/login
    * Login existing user
    */
-  static async login(c: Context<{ Bindings: Env }>) {
+  static async login(c: Context<{ Bindings: Env; Variables: Variables }>) {
     return handleLogin(c);
   }
 
@@ -34,7 +34,7 @@ export class AuthController {
    * GET /api/me
    * Get current authenticated user
    */
-  static async getMe(c: Context<{ Bindings: Env }>) {
+  static async getMe(c: Context<{ Bindings: Env; Variables: Variables }>) {
     return handleGetMe(c);
   }
 
@@ -42,7 +42,7 @@ export class AuthController {
    * POST /api/logout
    * Logout user and clear cookies
    */
-  static async logout(c: Context<{ Bindings: Env }>) {
+  static async logout(c: Context<{ Bindings: Env; Variables: Variables }>) {
     return handleLogout(c);
   }
 
@@ -50,7 +50,9 @@ export class AuthController {
    * POST /api/refresh
    * Refresh access token using refresh token
    */
-  static async refreshToken(c: Context<{ Bindings: Env }>) {
+  static async refreshToken(
+    c: Context<{ Bindings: Env; Variables: Variables }>
+  ) {
     return handleRefreshToken(c);
   }
 }

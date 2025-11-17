@@ -107,12 +107,12 @@ export function setAuthCookies(
   const accessTokenMaxAge = 15 * 60; // 15 minutes
   const refreshTokenMaxAge = 7 * 24 * 60 * 60; // 7 days
 
-  // For production: use Strict SameSite for maximum security
-  // For development: use None to allow cross-origin (client on different port)
+  // Use Lax SameSite for both environments to allow cookies across tabs
+  // while still providing CSRF protection
   const cookieOptions: CookieOptions = {
     httpOnly: true,
     secure: true, // Always true - protects against man-in-the-middle attacks
-    sameSite: isProduction ? "Strict" : "None", // Strict in production for XSS/CSRF protection
+    sameSite: "Lax", // Lax allows cookies on same-site navigation (new tabs, bookmarks)
     path: "/",
   };
 

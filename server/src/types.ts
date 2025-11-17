@@ -1,6 +1,8 @@
 // Environment Bindings available to Cloudflare Worker (Hono) handlers
 /// <reference types="@cloudflare/workers-types" />
 
+import type { SessionPayload } from "./utils/session";
+
 export interface Env {
   DB: D1Database;
   MY_BUCKET: R2Bucket;
@@ -12,5 +14,10 @@ export interface Env {
   ENVIRONMENT?: string;
   NODE_ENV?: string;
 }
+
+// Hono context variables
+export type Variables = {
+  session?: SessionPayload;
+};
 
 export default Env;

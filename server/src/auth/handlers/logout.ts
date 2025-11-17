@@ -1,8 +1,10 @@
 import { Context } from "hono";
 import { clearAuthCookies } from "../../utils/cookies";
-import type { Env } from "../../types";
+import type { Env, Variables } from "../../types";
 
-export async function handleLogout(c: Context<{ Bindings: Env }>) {
+export async function handleLogout(
+  c: Context<{ Bindings: Env; Variables: Variables }>
+) {
   try {
     const response = c.json({ message: "Logged out successfully" });
     return clearAuthCookies(response);

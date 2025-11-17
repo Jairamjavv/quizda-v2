@@ -2,11 +2,13 @@ import { Context } from "hono";
 import { getDb } from "../../db";
 import { setAuthCookies } from "../../utils/cookies";
 import { validateRegisterInput, type RegisterInput } from "../validation";
-import type { Env } from "../../types";
+import type { Env, Variables } from "../../types";
 import { UserRepository } from "../../repositories";
 import { AuthenticationService } from "../../services";
 
-export async function handleRegister(c: Context<{ Bindings: Env }>) {
+export async function handleRegister(
+  c: Context<{ Bindings: Env; Variables: Variables }>
+) {
   try {
     const input: RegisterInput = await c.req.json();
 

@@ -1,16 +1,17 @@
 import { Hono } from "hono";
 import openapi from "../openapi.json";
-import type { Env } from "./types";
+import type { Env, Variables } from "./types";
 import { authRoutes, quizRoutes, attemptRoutes, csrfRoutes } from "./routes";
 import {
   securityHeaders,
   rateLimitMiddleware,
   csrfProtection,
 } from "./middleware/security";
+import { requireAuth } from "./middleware/auth";
 import { AuthController } from "./controllers/AuthController";
 
 // Create a Hono app for Cloudflare Worker / ESM builds (worker-only)
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 // CORS middleware for Worker routes: honor configured allowed origins
 const defaultAllowed = [
@@ -111,8 +112,8 @@ app.route("/api/csrf", csrfRoutes); // CSRF routes: /api/csrf/token
 // Backward compatibility: Keep old auth routes at /api/ level
 app.post("/api/register", (c) => AuthController.register(c));
 app.post("/api/login", (c) => AuthController.login(c));
-app.get("/api/me", (c) => AuthController.getMe(c));
-app.post("/api/logout", (c) => AuthController.logout(c));
+app.get("/api/me", requireAuth, (c) => AuthController.getMe(c));
+app.post("/api/logout", requireAuth, (c) => AuthController.logout(c));
 app.post("/api/refresh", (c) => AuthController.refreshToken(c));
 
 // OpenAPI and docs

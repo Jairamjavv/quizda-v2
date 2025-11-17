@@ -5,9 +5,11 @@ import { generateAccessToken, generateRefreshToken } from "../../utils/session";
 import { setAuthCookies } from "../../utils/cookies";
 import { verifyPassword } from "../crypto";
 import { validateLoginInput, type LoginInput } from "../validation";
-import type { Env } from "../../types";
+import type { Env, Variables } from "../../types";
 
-export async function handleLogin(c: Context<{ Bindings: Env }>) {
+export async function handleLogin(
+  c: Context<{ Bindings: Env; Variables: Variables }>
+) {
   try {
     const input: LoginInput = await c.req.json();
 
