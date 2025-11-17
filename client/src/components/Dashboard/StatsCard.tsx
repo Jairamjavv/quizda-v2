@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardContent, Typography } from '@mui/material'
+import { StatsCard as UIStatsCard } from '../ui'
 
 const StatsCard: React.FC<{ title: string; value: React.ReactNode; subtitle?: string; large?: boolean }> = ({
   title,
@@ -8,21 +8,12 @@ const StatsCard: React.FC<{ title: string; value: React.ReactNode; subtitle?: st
   large = false
 }) => {
   return (
-    <Card sx={{ bgcolor: 'var(--surface)', p: 1 }}>
-      <CardContent>
-        <Typography variant="subtitle2" sx={{ color: 'var(--text-secondary)' }}>
-          {title}
-        </Typography>
-        <Typography variant={large ? 'h3' : 'h4'} sx={{ color: 'var(--text-primary)' }}>
-          {value}
-        </Typography>
-        {subtitle && (
-          <Typography variant="body2" sx={{ color: 'var(--text-secondary)', mt: 0.5 }}>
-            {subtitle}
-          </Typography>
-        )}
-      </CardContent>
-    </Card>
+    <UIStatsCard
+      title={title}
+      value={typeof value === 'string' || typeof value === 'number' ? value : String(value)}
+      subtitle={subtitle}
+      large={large}
+    />
   )
 }
 

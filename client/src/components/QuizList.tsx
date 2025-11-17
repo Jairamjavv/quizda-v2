@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { apiGetQuizzes } from '../services/quizApi'
-import { Grid, Card, CardContent, Typography, CardActions, Button } from '@mui/material'
+import { Grid } from '@mui/material'
+import { Card, Button, Text } from './ui'
+import { spacing } from '../theme/constants'
 
 type Quiz = {
   id: number
@@ -10,20 +12,16 @@ type Quiz = {
 
 const QuizCard: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
   return (
-    <Card sx={{ bgcolor: 'var(--surface)', borderRadius: 'var(--card-radius)' }}>
-      <CardContent>
-        <Typography variant="h6" sx={{ color: 'var(--text-primary)' }}>
-          {quiz.title}
-        </Typography>
-        <Typography sx={{ color: 'var(--text-secondary)', mt: 1 }}>
-          {quiz.questionsCount} questions
-        </Typography>
-      </CardContent>
-      <CardActions>
-        <Button size="small" sx={{ color: 'var(--primary-green)' }}>
-          Start
-        </Button>
-      </CardActions>
+    <Card padding="md" shadow="sm">
+      <Text as="h6">
+        {quiz.title}
+      </Text>
+      <Text as="body2" colorType="secondary" sx={{ mt: spacing.xs }}>
+        {quiz.questionsCount} questions
+      </Text>
+      <Button size="sm" sx={{ mt: spacing.sm }} variant="primary">
+        Start
+      </Button>
     </Card>
   )
 }
@@ -48,7 +46,7 @@ const QuizList: React.FC = () => {
     fetchQuizzes()
   }, [])
 
-  if (loading) return <Typography>Loading quizzes…</Typography>
+  if (loading) return <Text>Loading quizzes…</Text>
 
   return (
     <Grid container spacing={2}>

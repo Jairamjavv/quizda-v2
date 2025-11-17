@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import { AppBar, Toolbar, Typography, IconButton, Button, Menu, MenuItem, Avatar, Box } from '@mui/material'
+import { AppBar, Toolbar, IconButton, Menu, MenuItem, Avatar, Box } from '@mui/material'
 import { Link, useNavigate } from 'react-router-dom'
 import Brightness4Icon from '@mui/icons-material/Brightness4'
 import Brightness7Icon from '@mui/icons-material/Brightness7'
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { useSession } from '../services/sessionManager'
+import { Button, Text } from './ui'
+import { spacing } from '../theme/constants'
 
 interface HeaderProps {
   mode: 'light' | 'dark'
@@ -44,11 +45,11 @@ const Header: React.FC<HeaderProps> = ({ mode, onToggleMode }) => {
   return (
     <AppBar position="sticky" color="transparent" elevation={0} sx={{ bgcolor: 'var(--surface)' }}>
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'var(--text-primary)' }}>
-          <Button component={Link} to="/landing" sx={{ textTransform: 'none', color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 600 }}>
+        <Box sx={{ flexGrow: 1 }}>
+          <Button component={Link} to="/landing" variant="ghost" sx={{ fontSize: '1.25rem', fontWeight: 600, p: spacing.sm }}>
             Quizda
           </Button>
-        </Typography>
+        </Box>
 
         {isAuthenticated && user ? (
           <>
@@ -66,9 +67,9 @@ const Header: React.FC<HeaderProps> = ({ mode, onToggleMode }) => {
                   {user.username.charAt(0).toUpperCase()}
                 </Avatar>
               </IconButton>
-              <Typography variant="body2" sx={{ ml: 1, color: 'var(--text-primary)' }}>
+              <Text as="body2" sx={{ ml: spacing.xs }}>
                 {user.username}
-              </Typography>
+              </Text>
             </Box>
 
             <Menu
@@ -89,22 +90,14 @@ const Header: React.FC<HeaderProps> = ({ mode, onToggleMode }) => {
         ) : (
           <>
             {/* Login/Register Buttons */}
-            <Button component={Link} to="/login" sx={{ color: 'var(--text-primary)', mr: 1 }}>
+            <Button component={Link} to="/login" variant="ghost" sx={{ mr: spacing.xs }}>
               Login
             </Button>
             <Button 
               component={Link} 
               to="/register" 
-              variant="outlined"
-              sx={{ 
-                color: 'var(--text-primary)', 
-                mr: 2,
-                borderColor: 'var(--primary-green)',
-                '&:hover': {
-                  borderColor: 'var(--primary-green)',
-                  bgcolor: 'rgba(76, 175, 80, 0.1)'
-                }
-              }}
+              variant="outline"
+              sx={{ mr: spacing.md }}
             >
               Register
             </Button>

@@ -1,13 +1,15 @@
 import React from 'react'
-import { Box, Typography } from '@mui/material'
+import { Box } from '@mui/material'
+import { Text } from '../../ui'
+import { spacing } from '../../../theme/constants'
 
 const AdminDashboard: React.FC = () => {
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5">Admin Dashboard (Placeholder)</Typography>
-      <Typography variant="body2" sx={{ mt: 1 }}>
+    <Box sx={{ p: spacing.lg }}>
+      <Text as="h5">Admin Dashboard (Placeholder)</Text>
+      <Text as="body2" colorType="secondary" sx={{ mt: spacing.xs }}>
         This is a placeholder for the Admin dashboard. Admin tools and analytics will be implemented here.
-      </Typography>
+      </Text>
     </Box>
   )
 }

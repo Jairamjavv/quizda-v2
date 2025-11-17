@@ -3,19 +3,17 @@ import { useNavigate } from 'react-router-dom'
 import {
   Paper,
   Box,
-  Typography,
-  TextField,
-  Button,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  FormControlLabel,
   Checkbox,
   Alert
 } from '@mui/material'
 import { apiLogin } from '../../../services/quizApi'
 import { loginWithFirebase } from '../../../services/firebase'
+import { Button, FormField, Text } from '../../ui'
+import { spacing } from '../../../theme/constants'
 
 type LoginFormProps = {
   onOpenForgot: () => void
@@ -92,42 +90,40 @@ const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
 
   return (
     <Box>
-      <Paper sx={{ bgcolor: 'var(--surface)', p: 3, maxWidth: 540, mx: 'auto' }} component="form" onSubmit={onSubmit}>
-        <Typography variant="h5" sx={{ color: 'var(--text-primary)', mb: 2 }}>
+      <Paper sx={{ bgcolor: 'var(--surface)', p: spacing.lg, maxWidth: 540, mx: 'auto' }} component="form" onSubmit={onSubmit}>
+        <Text as="h5" sx={{ mb: spacing.md }}>
           Login
-        </Typography>
+        </Text>
 
         {serverError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: spacing.md }}>
             {serverError}
           </Alert>
         )}
 
         {success && (
-          <Alert severity="success" sx={{ mb: 2 }}>
+          <Alert severity="success" sx={{ mb: spacing.md }}>
             {success}
           </Alert>
         )}
 
-        <TextField
+        <FormField
           label="Email Address"
           type="email"
           value={form.email}
           onChange={handle('email')}
-          error={!!errors.email}
-          helperText={errors.email}
+          error={errors.email}
           fullWidth
           margin="normal"
           required
         />
 
-        <TextField
+        <FormField
           label="Password"
           type="password"
           value={form.password}
           onChange={handle('password')}
-          error={!!errors.password}
-          helperText={errors.password}
+          error={errors.password}
           fullWidth
           margin="normal"
           required
@@ -142,17 +138,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
           </Select>
         </FormControl>
 
-        <FormControlLabel
-          control={<Checkbox checked={form.remember} onChange={handle('remember')} />}
-          label="Remember me"
-        />
+        <Box sx={{ display: 'flex', alignItems: 'center', mt: spacing.xs }}>
+          <Checkbox checked={form.remember} onChange={handle('remember')} />
+          <Text as="body2">Remember me</Text>
+        </Box>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-          <Button type="submit" variant="contained" disabled={loading} sx={{ bgcolor: 'var(--primary-green)', color: '#fff' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: spacing.md }}>
+          <Button type="submit" variant="primary" disabled={loading}>
             {loading ? 'Signing in…' : 'Sign In'}
           </Button>
 
-          <Button onClick={onOpenForgot} variant="text">
+          <Button onClick={onOpenForgot} variant="ghost">
             Forgot password?
           </Button>
         </Box>

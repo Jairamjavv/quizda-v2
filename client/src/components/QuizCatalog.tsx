@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Box, Typography, TextField, Button, Grid, Paper, MenuItem, Select, InputLabel, FormControl, Chip, Pagination } from '@mui/material'
+import { Box, Grid, Paper, MenuItem, Select, InputLabel, FormControl, Pagination } from '@mui/material'
 import QuizWindow from './QuizComponents/QuizWindow'
+import { useQuizzes } from '../hooks'
+import { Button, Text, Badge, Input } from './ui'
+import { spacing } from '../theme/constants'
 
 type QuizRecord = {
   id: string
@@ -10,6 +13,7 @@ type QuizRecord = {
   subcategory?: string
   tags?: string[]
   totalTimeMinutes?: number
+  questions?: any[]
 }
 
 const QuizCatalog: React.FC = () => {
@@ -21,15 +25,23 @@ const QuizCatalog: React.FC = () => {
 
   const [searchText, setSearchText] = useState('')
   const [durationFilter, setDurationFilter] = useState<number | 'any'>(initialDuration || 'any')
-  const [quizzes, setQuizzes] = useState<QuizRecord[]>([])
+  const { quizzes: fetchedQuizzes } = useQuizzes()
   const [openQuiz, setOpenQuiz] = useState<QuizRecord | null>(null)
   const [page, setPage] = useState(1)
   const pageSize = 6
 
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('contributor_quizzes') || '[]') as QuizRecord[]
-    setQuizzes(stored)
-  }, [])
+  // Transform quizzes to QuizRecord format
+  const quizzes: QuizRecord[] = useMemo(() => 
+    fetchedQuizzes.map(q => ({
+      id: String(q.id),
+      title: q.title,
+      category: q.category || 'General',
+      subcategory: '',
+      tags: [],
+      totalTimeMinutes: 0
+    })), 
+    [fetchedQuizzes]
+  )
 
   const filtered = useMemo(() => quizzes.filter((q) => {
     if (fixedCategory && q.category !== fixedCategory) return false
@@ -48,18 +60,18 @@ const QuizCatalog: React.FC = () => {
   const paginated = useMemo(() => filtered.slice((page - 1) * pageSize, page * pageSize), [filtered, page])
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-        <Button onClick={() => navigate(-1)}>Back</Button>
-        <Typography variant="h6">Quiz Catalog</Typography>
+    <Box sx={{ p: spacing.md }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: spacing.md, mb: spacing.md }}>
+        <Button onClick={() => navigate(-1)} variant="outline">Back</Button>
+        <Text as="h6">Quiz Catalog</Text>
         <Box sx={{ flex: 1 }} />
-        <Chip label={`${filtered.length} quizzes`} color="primary" />
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>Category:</Typography>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{fixedCategory || '—'}</Typography>
+        <Badge variant="primary">{`${filtered.length} quizzes`}</Badge>
+        <Text as="body2" colorType="secondary">Category:</Text>
+        <Text as="subtitle1" weight="semibold">{fixedCategory || '—'}</Text>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-        <TextField placeholder="Search subcategory or tag" value={searchText} onChange={(e) => setSearchText(e.target.value)} fullWidth />
+      <Box sx={{ display: 'flex', gap: spacing.md, mb: spacing.md }}>
+        <Input placeholder="Search subcategory or tag" value={searchText} onChange={(e) => setSearchText(e.target.value)} fullWidth />
         <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel id="duration-label">Duration</InputLabel>
           <Select labelId="duration-label" value={durationFilter} label="Duration" onChange={(e: any) => setDurationFilter(e.target.value)}>
@@ -75,26 +87,30 @@ const QuizCatalog: React.FC = () => {
       <Grid container spacing={2}>
         {paginated.map((q) => (
           <Grid item xs={12} sm={6} md={4} key={q.id}>
-            <Paper sx={{ p: 2, cursor: 'pointer', position: 'relative' }} onClick={() => setOpenQuiz(q)}>
-              <Chip label={`${q.questions?.length ?? 0} Qs`} size="small" sx={{ position: 'absolute', top: 8, right: 8 }} />
-              <Typography variant="h6" sx={{ mb: 1 }}>{q.title}</Typography>
-              <Typography variant="caption" sx={{ display: 'block', mb: 1 }}>{q.subcategory || ''}</Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>{(q.tags || []).join(', ')}</Typography>
-              <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Button size="small" onClick={(e) => { e.stopPropagation(); setOpenQuiz(q) }}>Take quiz</Button>
-                <Typography variant="caption">{q.totalTimeMinutes ? `${q.totalTimeMinutes} min` : '—'}</Typography>
+            <Paper sx={{ p: spacing.md, cursor: 'pointer', position: 'relative' }} onClick={() => setOpenQuiz(q)}>
+              <Badge variant="secondary" sx={{ position: 'absolute', top: spacing.sm, right: spacing.sm }}>
+                {`${q.questions?.length ?? 0} Qs`}
+              </Badge>
+              <Text as="h6" sx={{ mb: spacing.xs }}>{q.title}</Text>
+              <Text as="caption" sx={{ display: 'block', mb: spacing.xs }}>{q.subcategory || ''}</Text>
+              <Text as="body2" colorType="secondary">{(q.tags || []).join(', ')}</Text>
+              <Box sx={{ mt: spacing.xs, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Button size="sm" onClick={(e) => { e.stopPropagation(); setOpenQuiz(q) }} variant="primary">
+                  Take quiz
+                </Button>
+                <Text as="caption">{q.totalTimeMinutes ? `${q.totalTimeMinutes} min` : '—'}</Text>
               </Box>
             </Paper>
           </Grid>
         ))}
         {filtered.length === 0 && (
-          <Box sx={{ p: 2 }}>
-            <Typography variant="body2">No quizzes found for this category/duration. You can go back to change the category or try different filters.</Typography>
+          <Box sx={{ p: spacing.md }}>
+            <Text as="body2">No quizzes found for this category/duration. You can go back to change the category or try different filters.</Text>
           </Box>
         )}
       </Grid>
 
-      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ mt: spacing.lg, display: 'flex', justifyContent: 'center' }}>
         <Pagination count={pageCount} page={page} onChange={(_, p) => setPage(p)} color="primary" />
       </Box>
 

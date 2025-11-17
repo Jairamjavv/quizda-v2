@@ -1,26 +1,28 @@
 import React, { useState } from 'react'
-import { Card, CardContent, Typography, Button } from '@mui/material'
+import { Box } from '@mui/material'
+import { Card, Button, Text } from '../ui'
 import NewQuizDialog from '../QuizComponents/NewQuizDialog'
+import { spacing } from '../../theme/constants'
 
 const StartQuizCard: React.FC = () => {
   const [open, setOpen] = useState(false)
 
   return (
     <>
-      <Card sx={{ bgcolor: 'var(--surface)', p: 1 }}>
-        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <Typography variant="subtitle2" sx={{ color: 'var(--text-secondary)' }}>
+      <Card padding="md" shadow="sm">
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md }}>
+          <Box>
+            <Text as="body2" weight="medium" colorType="secondary">
               Start a New Quiz
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'var(--text-primary)', mt: 1 }}>
+            </Text>
+            <Text as="body2" colorType="primary" sx={{ mt: spacing.xs }}>
               Attempt a new quiz challenge now.
-            </Typography>
-          </div>
-          <Button onClick={() => setOpen(true)} variant="contained" sx={{ bgcolor: 'var(--primary-green)', color: '#fff' }}>
+            </Text>
+          </Box>
+          <Button onClick={() => setOpen(true)} variant="primary" size="md">
             New
           </Button>
-        </CardContent>
+        </Box>
       </Card>
 
       <NewQuizDialog open={open} onClose={() => setOpen(false)} />

@@ -1,66 +1,48 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Grid, Box } from '@mui/material'
-import { apiGetQuizzes } from '../../../services/quizApi'
 import StatsCard from '../StatsCard'
 import StartQuizCard from '../StartQuizCard'
 import RecentQuizzes from '../RecentQuizzes'
 import { RecentQuiz, generatePlaceholders } from '../types'
+import { useQuizzes, useUserStatistics, useRecentPerformance } from '../../../hooks'
 
 const AttempterDashboard: React.FC = () => {
-  const [recent, setRecent] = useState<RecentQuiz[]>([])
-  const [loading, setLoading] = useState(false)
+  const { quizzes, loading: quizzesLoading } = useQuizzes()
+  const { stats } = useUserStatistics()
+  const { performance } = useRecentPerformance(10)
+  
   const [topN, setTopN] = useState<number>(10)
+  const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    const fetch = async () => {
-      setLoading(true)
-      try {
-        const data = await apiGetQuizzes()
-        const mapped: RecentQuiz[] = data.map((q: any, idx: number) => ({
-          id: q.id || idx + 1,
-          title: q.title || `Quiz ${idx + 1}`,
-          score: Math.floor(Math.random() * 100),
-          date: new Date().toISOString().slice(0, 10)
-        }))
-        if (mapped.length < topN) {
-          const more = generatePlaceholders(topN - mapped.length + 5)
-          setRecent([...mapped, ...more].slice(0, topN))
-        } else setRecent(mapped.slice(0, topN))
-      } catch (err) {
-        setRecent(generatePlaceholders(topN))
-      } finally {
-        setLoading(false)
-      }
+  // Map performance data to RecentQuiz format
+  const recent: RecentQuiz[] = useMemo(() => {
+    const mapped = performance.map(p => ({
+      id: p.quizId,
+      title: p.quizTitle,
+      score: p.score,
+      date: p.date
+    }))
+    
+    if (mapped.length < topN) {
+      const more = generatePlaceholders(topN - mapped.length)
+      return [...mapped, ...more].slice(0, topN)
     }
-
-    fetch()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    return mapped.slice(0, topN)
+  }, [performance, topN])
 
   useEffect(() => {
-    setRecent((cur) => {
-      if (cur.length >= topN) return cur.slice(0, topN)
-      return [...cur, ...generatePlaceholders(topN - cur.length)].slice(0, topN)
-    })
-  }, [topN])
-
-  const totalTaken = useMemo(() => recent.length, [recent])
-  const streak = useMemo(() => Math.floor(Math.random() * 15), [])
-  const average = useMemo(() => {
-    if (!recent.length) return 0
-    const scores = recent.map((r) => r.score || 0)
-    return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-  }, [recent])
+    setLoading(quizzesLoading)
+  }, [quizzesLoading])
 
   return (
     <Box>
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6} md={4}>
-          <StatsCard title="Total Quizzes Taken" value={totalTaken} />
+          <StatsCard title="Total Quizzes Taken" value={stats.totalQuizzesTaken} />
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
-          <StatsCard title="Current Streak" value={`${streak} days`} subtitle="Consecutive days" />
+          <StatsCard title="Current Streak" value={`${stats.currentStreak} days`} subtitle="Consecutive days" />
         </Grid>
 
         <Grid item xs={12} sm={12} md={4}>
@@ -68,7 +50,7 @@ const AttempterDashboard: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={6}>
-          <StatsCard title="Total Average Score" value={`${average}%`} large />
+          <StatsCard title="Total Average Score" value={`${stats.averageScore}%`} large />
         </Grid>
 
         <Grid item xs={12} sm={6} md={6}>

@@ -73,10 +73,25 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    console.error("[API Error]", error.response?.status, error.message);
+    // Only log errors that are not 401 (unauthorized) or during initial session check
+    const isSessionCheck = originalRequest.url?.includes("/api/me");
+    const is401 = error.response?.status === 401;
+
+    if (!is401 || !isSessionCheck) {
+      console.error("[API Error]", error.response?.status, error.message);
+    }
 
     // Handle 401 Unauthorized - attempt token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // Don't attempt refresh for /api/me (session check) or auth endpoints
+      const isAuthEndpoint =
+        originalRequest.url?.includes("/api/login") ||
+        originalRequest.url?.includes("/api/register");
+
+      if (isSessionCheck || isAuthEndpoint) {
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         // If already refreshing, queue this request
         return new Promise((resolve, reject) => {
@@ -112,8 +127,11 @@ apiClient.interceptors.response.use(
         localStorage.removeItem("authToken");
         localStorage.removeItem("user");
 
-        // Redirect to login page
-        if (window.location.pathname !== "/login") {
+        // Redirect to login page only if not already on auth pages
+        if (
+          window.location.pathname !== "/login" &&
+          window.location.pathname !== "/register"
+        ) {
           window.location.href = "/login";
         }
 

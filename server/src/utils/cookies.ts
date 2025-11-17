@@ -107,10 +107,12 @@ export function setAuthCookies(
   const accessTokenMaxAge = 15 * 60; // 15 minutes
   const refreshTokenMaxAge = 7 * 24 * 60 * 60; // 7 days
 
+  // For cross-origin requests (client on Pages, API on Workers),
+  // we need SameSite=None with Secure=true
   const cookieOptions: CookieOptions = {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "Lax" : "Lax",
+    secure: true, // Always true for cross-origin cookies
+    sameSite: "None", // Required for cross-origin cookies
     path: "/",
   };
 

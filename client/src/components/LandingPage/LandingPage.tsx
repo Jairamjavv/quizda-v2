@@ -1,7 +1,9 @@
 import React from 'react'
-import { AppBar, Toolbar, Box, Button, Typography, Grid, Stack } from '@mui/material'
+import { Box, Grid, Stack } from '@mui/material'
 import StatsOverview from './StatsOverview'
 import { useNavigate } from 'react-router-dom'
+import { Button, Text } from '../ui'
+import { spacing, borderRadius } from '../../theme/constants'
 
 type Props = {
   totalQuizzes: number
@@ -17,28 +19,28 @@ const LandingPage: React.FC<Props> = ({ totalQuizzes, totalQuestions, totalAttem
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
-      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', p: { xs: 3, md: 6 } }}>
+      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', p: { xs: spacing.lg, md: spacing.xl } }}>
         <Box sx={{ maxWidth: 980, width: '100%', textAlign: 'center' }}>
-          <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>Welcome to Quizda</Typography>
-          <Typography variant="h6" sx={{ color: 'text.secondary', mb: 4 }}>You know it, then test it!</Typography>
+          <Text as="h3" weight="bold" sx={{ mb: spacing.xs }}>Welcome to Quizda</Text>
+          <Text as="h6" colorType="secondary" sx={{ mb: spacing.lg }}>You know it, then test it!</Text>
 
           <Grid container spacing={2} justifyContent="center" sx={{ mb: 3 }}>
             <Grid item xs={12} sm={10} md={8}>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
                 <Button
-                  variant="contained"
-                  size="large"
+                  variant="primary"
+                  size="lg"
                   onClick={() => navigate('/dashboard/attempter')}
-                  sx={{ borderRadius: 3, px: 5, py: 1.8, bgcolor: 'primary.main', color: '#fff', fontWeight: 600 }}
+                  sx={{ borderRadius: borderRadius.lg, px: spacing.xl, py: spacing.md }}
                 >
                   Attempt Quizzes
                 </Button>
 
                 <Button
-                  variant="outlined"
-                  size="large"
+                  variant="outline"
+                  size="lg"
                   onClick={() => navigate('/dashboard/contributor')}
-                  sx={{ borderRadius: 3, px: 5, py: 1.8, borderWidth: 2, fontWeight: 600 }}
+                  sx={{ borderRadius: borderRadius.lg, px: spacing.xl, py: spacing.md }}
                 >
                   Contribute Questions
                 </Button>

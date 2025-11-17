@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Grid } from '@mui/material'
-import RegisterForm from './RegisterForm'
+import RegisterForm from './RegisterForm/index'
 import NoticeBoard from './NoticeBoard'
 
 const Register: React.FC = () => {

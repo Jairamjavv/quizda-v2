@@ -64,9 +64,16 @@ class SessionManager {
         this.setUser(data.user);
         this.scheduleTokenRefresh();
       } else {
+        // 401 is expected when user is not logged in, don't log as error
+        if (response.status !== 401) {
+          console.error(
+            `Session initialization failed with status ${response.status}`
+          );
+        }
         this.clearUser();
       }
     } catch (error) {
+      // Network errors or other issues
       console.error("Session initialization error:", error);
       this.clearUser();
     } finally {

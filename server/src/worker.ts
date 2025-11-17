@@ -1,7 +1,12 @@
 import { Hono } from "hono";
 import openapi from "../openapi.json";
 import type { Env } from "./types";
-import workerAuth from "./worker-auth";
+import { authRoutes, quizRoutes, attemptRoutes, csrfRoutes } from "./routes";
+import {
+  securityHeaders,
+  rateLimitMiddleware,
+  csrfProtection,
+} from "./middleware/security";
 
 // Create a Hono app for Cloudflare Worker / ESM builds (worker-only)
 const app = new Hono<{ Bindings: Env }>();
@@ -46,10 +51,18 @@ app.use("*", async (c, next) => {
   if (allow) {
     c.header("Access-Control-Allow-Origin", allow);
     c.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-    c.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    c.header(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, X-CSRF-Token"
+    );
     c.header("Access-Control-Allow-Credentials", "true"); // Required for cookies
   }
 });
+
+// Security middleware
+app.use("*", securityHeaders);
+app.use("*", rateLimitMiddleware);
+app.use("*", csrfProtection);
 
 // Respond to preflight requests
 app.options("*", (c) => {
@@ -70,7 +83,7 @@ app.options("*", (c) => {
   const allow = isAllowed ? origin : null;
   const headers: Record<string, string> = {
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-CSRF-Token",
   };
   if (allow) {
     headers["Access-Control-Allow-Origin"] = allow;
@@ -88,13 +101,28 @@ app.get("/api/hello", (c) =>
   c.json({ message: "Hello from Cloudflare Worker" }, 200)
 );
 
-// /api/quizzes - placeholder until D1+R2 read is implemented
-app.get("/api/quizzes", (c) => {
-  return c.json([]);
-});
+// Mount route modules
+app.route("/api/auth", authRoutes); // Auth routes: /api/auth/register, /api/auth/login, etc.
+app.route("/api/quizzes", quizRoutes); // Quiz routes: /api/quizzes, /api/quizzes/:id, etc.
+app.route("/api/attempts", attemptRoutes); // Attempt routes: /api/attempts, /api/attempts/user/:userId, etc.
+app.route("/api/csrf", csrfRoutes); // CSRF routes: /api/csrf/token
 
-// Mount auth routes (handles register, login, me)
-app.route("/api", workerAuth);
+// Backward compatibility: Keep old auth routes at /api/ level
+app.post("/api/register", (c) =>
+  authRoutes.fetch(c.req.raw, c.env as any).then((r) => new Response(r.body, r))
+);
+app.post("/api/login", (c) =>
+  authRoutes.fetch(c.req.raw, c.env as any).then((r) => new Response(r.body, r))
+);
+app.get("/api/me", (c) =>
+  authRoutes.fetch(c.req.raw, c.env as any).then((r) => new Response(r.body, r))
+);
+app.post("/api/logout", (c) =>
+  authRoutes.fetch(c.req.raw, c.env as any).then((r) => new Response(r.body, r))
+);
+app.post("/api/refresh", (c) =>
+  authRoutes.fetch(c.req.raw, c.env as any).then((r) => new Response(r.body, r))
+);
 
 // OpenAPI and docs
 app.get("/api/openapi.json", (c) => c.json(openapi));

@@ -7,7 +7,13 @@
         "start:client": "cd client && npm run dev",
         "start": "concurrently \"npm run start:server\" \"npm run start:client\"",
         "dev": "npm start",
-        "install:all": "npm install && cd client && npm install && cd ../server && npm install"
+        "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+        "deploy": "./deploy.sh all",
+        "deploy:server": "./deploy.sh server",
+        "deploy:client": "./deploy.sh client",
+        "build:server": "cd server && npm run build:worker",
+        "build:client": "cd client && npm run build",
+        "build:all": "npm run build:server && npm run build:client"
     },
     "devDependencies": {
         "concurrently": "^8.2.0"
