@@ -5,6 +5,11 @@
 
 import { useState, useEffect } from "react";
 
+// Get API base URL with fallback
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://quizda-worker-prod.b-jairam0512.workers.dev";
+
 export interface User {
   id: number;
   email: string;
@@ -48,16 +53,13 @@ class SessionManager {
    */
   private async initializeSession() {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/me`,
-        {
-          method: "GET",
-          credentials: "include", // Include cookies
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/me`, {
+        method: "GET",
+        credentials: "include", // Include cookies
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -163,16 +165,13 @@ class SessionManager {
    */
   async refreshToken(): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/refresh`,
-        {
-          method: "POST",
-          credentials: "include", // Include cookies (refresh token)
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/refresh`, {
+        method: "POST",
+        credentials: "include", // Include cookies (refresh token)
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (response.ok) {
         console.log("Token refreshed successfully");
@@ -195,7 +194,7 @@ class SessionManager {
    */
   async logout(): Promise<void> {
     try {
-      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/logout`, {
+      await fetch(`${API_BASE_URL}/api/logout`, {
         method: "POST",
         credentials: "include",
         headers: {

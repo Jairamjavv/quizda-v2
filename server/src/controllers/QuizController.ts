@@ -4,7 +4,7 @@
  */
 
 import { Context } from "hono";
-import type { Env } from "../types";
+import type { Env, Variables } from "../types";
 import { QuizBusinessService } from "../services/QuizBusinessService";
 import { QuizRepository } from "../repositories";
 import { getSessionFromRequest } from "../utils/session";
@@ -20,7 +20,7 @@ export class QuizController {
    * GET /api/quizzes
    * Get all quizzes (with optional filters)
    */
-  static async getQuizzes(c: Context<{ Bindings: Env }>) {
+  static async getQuizzes(c: Context<{ Bindings: Env; Variables: Variables }>) {
     try {
       const db = getDb(c.env);
       const quizRepo = new QuizRepository(db);
@@ -44,7 +44,9 @@ export class QuizController {
    * GET /api/quizzes/:id
    * Get quiz by ID
    */
-  static async getQuizById(c: Context<{ Bindings: Env }>) {
+  static async getQuizById(
+    c: Context<{ Bindings: Env; Variables: Variables }>
+  ) {
     try {
       const id = parseInt(c.req.param("id"));
 
@@ -73,7 +75,7 @@ export class QuizController {
    * POST /api/quizzes
    * Create new quiz (requires authentication)
    */
-  static async createQuiz(c: Context<{ Bindings: Env }>) {
+  static async createQuiz(c: Context<{ Bindings: Env; Variables: Variables }>) {
     try {
       // Get authenticated user session
       const session = getSessionFromRequest(c.req.raw);
@@ -128,7 +130,7 @@ export class QuizController {
    * PUT /api/quizzes/:id
    * Update quiz (requires authentication and ownership)
    */
-  static async updateQuiz(c: Context<{ Bindings: Env }>) {
+  static async updateQuiz(c: Context<{ Bindings: Env; Variables: Variables }>) {
     try {
       const id = parseInt(c.req.param("id"));
 
@@ -162,7 +164,7 @@ export class QuizController {
    * DELETE /api/quizzes/:id
    * Delete quiz (requires authentication and ownership)
    */
-  static async deleteQuiz(c: Context<{ Bindings: Env }>) {
+  static async deleteQuiz(c: Context<{ Bindings: Env; Variables: Variables }>) {
     try {
       const id = parseInt(c.req.param("id"));
 

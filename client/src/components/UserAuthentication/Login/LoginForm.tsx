@@ -11,6 +11,7 @@ import {
   Alert
 } from '@mui/material'
 import { useAuth } from '../../../hooks/useAuth'
+import { sessionManager } from '../../../services/sessionManager'
 import { Button, FormField, Text } from '../../ui'
 import { spacing } from '../../../theme/constants'
 
@@ -21,10 +22,11 @@ type LoginFormProps = {
 type LoginFormState = {
   email: string
   password: string
+  role: 'contributor' | 'attempter' | 'admin'
   remember: boolean
 }
 
-const initial: LoginFormState = { email: '', password: '', remember: false }
+const initial: LoginFormState = { email: '', password: '', role: 'attempter', remember: false }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
   const [form, setForm] = useState<LoginFormState>(initial)
@@ -61,6 +63,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
         email: form.email,
         password: form.password,
       })
+      
+      // Update sessionManager with the logged-in user
+      if (response.user) {
+        sessionManager.setUser(response.user)
+      }
       
       // Navigate based on user role
       const role = response.user?.role
@@ -116,6 +123,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
           margin="normal"
           required
         />
+
+        <FormControl fullWidth margin="normal">
+          <InputLabel id="login-role-label">Role</InputLabel>
+          <Select labelId="login-role-label" value={form.role} label="Role" onChange={handle('role')}>
+            <MenuItem value="attempter">Attempter</MenuItem>
+            <MenuItem value="contributor">Contributor</MenuItem>
+            <MenuItem value="admin">Admin</MenuItem>
+          </Select>
+        </FormControl>
 
         <Box sx={{ display: 'flex', alignItems: 'center', mt: spacing.xs }}>
           <Checkbox checked={form.remember} onChange={handle('remember')} />

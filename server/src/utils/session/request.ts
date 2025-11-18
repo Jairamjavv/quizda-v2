@@ -39,7 +39,8 @@ function parseCookies(cookieHeader: string): Record<string, string> {
   return cookieHeader.split(";").reduce((acc, cookie) => {
     const [key, value] = cookie.trim().split("=");
     if (key && value) {
-      acc[key] = decodeURIComponent(value);
+      // Don't decode value - base64url tokens don't need decoding
+      acc[key] = value;
     }
     return acc;
   }, {} as Record<string, string>);

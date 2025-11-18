@@ -29,7 +29,9 @@ export function createCookie(
 ): string {
   const opts = { ...DEFAULT_COOKIE_OPTIONS, ...options };
 
-  let cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+  // Don't encode the value - base64url tokens are already URL-safe
+  // Only encode the name to be safe
+  let cookie = `${encodeURIComponent(name)}=${value}`;
 
   if (opts.maxAge !== undefined) {
     cookie += `; Max-Age=${opts.maxAge}`;
@@ -78,7 +80,8 @@ export function parseCookies(cookieHeader: string): Record<string, string> {
   return cookieHeader.split(";").reduce((acc, cookie) => {
     const [key, value] = cookie.trim().split("=");
     if (key && value) {
-      acc[decodeURIComponent(key)] = decodeURIComponent(value);
+      // Don't decode value - base64url tokens don't need decoding
+      acc[decodeURIComponent(key)] = value;
     }
     return acc;
   }, {} as Record<string, string>);
