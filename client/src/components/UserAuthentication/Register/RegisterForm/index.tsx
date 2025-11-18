@@ -4,6 +4,7 @@ import { Paper, Typography, Button, Box } from '@mui/material'
 import { useNotification } from '../../../../context/NotificationContext'
 import { useAuth } from '../../../../hooks/useAuth'
 import { sessionManager } from '../../../../services/sessionManager'
+import { registerWithFirebase } from '../../../../services/firebase'
 import { RegisterFormFields } from './RegisterFormFields'
 import { FormState, initialFormState, validateRegistrationForm } from './validation'
 
@@ -31,12 +32,20 @@ const RegisterForm: React.FC = () => {
 
     setLoading(true)
     try {
-      // Use AuthService register (includes Firebase registration)
+      // Step 1: Register with Firebase to get firebaseUid
+      const firebaseUser = await registerWithFirebase(
+        form.email,
+        form.password,
+        form.username
+      )
+
+      // Step 2: Register in backend with firebaseUid
       const response = await register({
         email: form.email,
         username: form.username,
         password: form.password,
         role: form.role,
+        firebaseUid: firebaseUser.uid,  // Include firebaseUid from Firebase
       })
       
       // Update sessionManager with registered user

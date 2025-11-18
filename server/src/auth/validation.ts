@@ -14,7 +14,7 @@ export type RegisterInput = {
   password?: string;
   username: string;
   role?: string;
-  firebaseUid: string;
+  firebaseUid?: string; // Optional: only needed for Firebase auth
 };
 
 export type LoginInput = {
@@ -28,10 +28,22 @@ export function validateRegisterInput(input: any): {
   error?: string;
   role: string;
 } {
-  if (!input.email || !input.username || !input.firebaseUid) {
+  // Email and username are required
+  // FirebaseUid is optional (only for Firebase auth)
+  // Password is optional (only for password-based auth)
+  if (!input.email || !input.username) {
     return {
       isValid: false,
-      error: "Email, username, and firebaseUid are required",
+      error: "Email and username are required",
+      role: "attempter",
+    };
+  }
+
+  // At least one authentication method must be provided
+  if (!input.password && !input.firebaseUid) {
+    return {
+      isValid: false,
+      error: "Either password or firebaseUid must be provided",
       role: "attempter",
     };
   }
