@@ -38,7 +38,7 @@ export const FormField: React.FC<FormFieldProps> = ({
         >
           {label}
           {required && (
-            <Text as="caption" sx={{ color: 'var(--error)', ml: spacing.xs }}>
+            <Text as="caption" sx={{ color: 'error.main', ml: spacing.xs }}>
               *
             </Text>
           )}
@@ -55,7 +55,7 @@ export const FormField: React.FC<FormFieldProps> = ({
           error={!!error}
           sx={{
             mt: spacing.xs,
-            color: error ? 'var(--error)' : 'var(--text-secondary)',
+            color: error ? 'error.main' : 'text.secondary',
           }}
         >
           {error || helperText}

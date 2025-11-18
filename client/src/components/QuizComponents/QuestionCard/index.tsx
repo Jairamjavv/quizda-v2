@@ -125,10 +125,11 @@ const QuestionCard: React.FC<Props> = ({ question, onAnswerChange }) => {
       component="article"
       aria-labelledby={`${id}-title`}
       sx={{
-        border: '1px solid var(--surface-2, #e6e6e6)',
+        border: '1px solid',
+        borderColor: 'divider',
         borderRadius: '10px',
         p: 1.5,
-        background: 'var(--surface-1, #fff)',
+        background: 'background.paper',
         boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
         maxWidth: 900,
         m: '8px auto'
@@ -138,7 +139,7 @@ const QuestionCard: React.FC<Props> = ({ question, onAnswerChange }) => {
         <Typography
           id={`${id}-title`}
           component="h3"
-          sx={{ fontSize: '1rem', color: 'var(--text-1, #111)', m: 0 }}
+          sx={{ fontSize: '1rem', color: 'text.primary', m: 0 }}
         >
           {question.text}
         </Typography>

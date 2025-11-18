@@ -14,7 +14,7 @@ const QuestionsList: React.FC<Props> = ({ questions }) => {
     <Box sx={{ mt: 3 }}>
       <Typography variant="h6">Questions ({questions.length})</Typography>
       {questions.map((q) => (
-        <Box key={q.id} sx={{ p: 1, mt: 1, bgcolor: 'var(--surface)', borderRadius: 1 }}>
+        <Box key={q.id} sx={{ p: 1, mt: 1, bgcolor: 'background.paper', borderRadius: 1 }}>
           <Typography variant="subtitle2">{q.type}</Typography>
           <Typography variant="body2">{q.data.stem}</Typography>
         </Box>

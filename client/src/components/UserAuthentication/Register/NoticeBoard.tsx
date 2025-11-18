@@ -3,12 +3,12 @@ import { Card, CardContent, Typography, List, ListItem, ListItemText } from '@mu
 
 const NoticeBoard: React.FC = () => {
   return (
-    <Card sx={{ bgcolor: 'var(--surface)', p: 1 }}>
+    <Card sx={{ bgcolor: 'background.paper', p: 1 }}>
       <CardContent>
-        <Typography variant="h6" sx={{ color: 'var(--text-primary)', mb: 1 }}>
+        <Typography variant="h6" sx={{ color: 'text.primary', mb: 1 }}>
           Notice Board
         </Typography>
-        <Typography variant="body2" sx={{ color: 'var(--text-secondary)', mb: 1 }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
           Role descriptions help you choose the right account type. Below is an overview of each role and what it allows you to do.
         </Typography>
 

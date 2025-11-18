@@ -85,7 +85,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
 
   return (
     <Box>
-      <Paper sx={{ bgcolor: 'var(--surface)', p: spacing.lg, maxWidth: 540, mx: 'auto' }} component="form" onSubmit={onSubmit}>
+      <Paper sx={{ bgcolor: 'background.paper', p: spacing.lg, maxWidth: 540, mx: 'auto' }} component="form" onSubmit={onSubmit}>
         <Text as="h5" sx={{ mb: spacing.md }}>
           Login
         </Text>

@@ -1,13 +1,13 @@
 /**
  * Button Component - Atomic Design (Atom)
  * 
- * Reusable button component with consistent styling across the app.
+ * Reusable button component built on MUI Button with theme-based styling.
+ * Uses MUI theme palette - NO hardcoded colors!
  */
 
 import React from 'react';
 import { Button as MuiButton, ButtonProps as MuiButtonProps, CircularProgress } from '@mui/material';
-import { designTokens } from '../../../theme/designTokens';
-import { spacing, borderRadius, transitions } from '../../../theme/constants';
+import { useTheme } from '@mui/material/styles';
 
 export interface ButtonProps extends Omit<MuiButtonProps, 'size' | 'variant'> {
   /** Button variant */
@@ -40,56 +40,53 @@ export const Button: React.FC<ButtonProps> = ({
   sx,
   ...props
 }) => {
-  const getVariantStyles = () => {
-    const lightTokens = designTokens.light;
-    const darkTokens = designTokens.dark;
+  const theme = useTheme();
 
+  const getVariantStyles = () => {
     switch (variant) {
       case 'primary':
         return {
-          bgcolor: 'var(--primary-green)',
-          color: '#fff',
+          bgcolor: 'primary.main',
+          color: 'primary.contrastText',
           '&:hover': {
-            bgcolor: lightTokens.primaryGreenDark,
-          },
-          '&:active': {
-            transform: 'scale(0.98)',
+            bgcolor: 'primary.dark',
           },
         };
       case 'secondary':
         return {
-          bgcolor: 'var(--primary-orange)',
-          color: '#fff',
+          bgcolor: 'secondary.main',
+          color: 'secondary.contrastText',
           '&:hover': {
-            bgcolor: lightTokens.primaryOrangeDark,
-          },
-          '&:active': {
-            transform: 'scale(0.98)',
+            bgcolor: 'secondary.dark',
           },
         };
       case 'outline':
         return {
           bgcolor: 'transparent',
-          color: 'var(--primary-green)',
-          border: '2px solid var(--primary-green)',
+          color: 'primary.main',
+          border: 2,
+          borderColor: 'primary.main',
           '&:hover': {
-            bgcolor: 'var(--primary-green-light)',
+            bgcolor: 'primary.light',
+            borderColor: 'primary.dark',
           },
         };
       case 'ghost':
         return {
           bgcolor: 'transparent',
-          color: 'var(--text-primary)',
+          color: 'text.primary',
           '&:hover': {
-            bgcolor: 'var(--surface-hover)',
+            bgcolor: theme.palette.mode === 'light' 
+              ? theme.palette.grey[100]
+              : theme.palette.grey[800],
           },
         };
       case 'danger':
         return {
-          bgcolor: lightTokens.error,
-          color: '#fff',
+          bgcolor: 'error.main',
+          color: 'error.contrastText',
           '&:hover': {
-            bgcolor: '#a33838',
+            bgcolor: 'error.dark',
           },
         };
       default:
@@ -101,22 +98,22 @@ export const Button: React.FC<ButtonProps> = ({
     switch (size) {
       case 'sm':
         return {
-          height: '32px',
-          padding: `0 ${spacing.md}`,
-          fontSize: '14px',
+          minHeight: theme.spacing(4),
+          px: theme.spacing(1.5),
+          fontSize: theme.typography.body2.fontSize,
         };
       case 'lg':
         return {
-          height: '48px',
-          padding: `0 ${spacing.lg}`,
-          fontSize: '18px',
+          minHeight: theme.spacing(6),
+          px: theme.spacing(3),
+          fontSize: theme.typography.h6.fontSize,
         };
       case 'md':
       default:
         return {
-          height: '40px',
-          padding: `0 ${spacing.lg}`,
-          fontSize: '16px',
+          minHeight: theme.spacing(5),
+          px: theme.spacing(2),
+          fontSize: theme.typography.body1.fontSize,
         };
     }
   };
@@ -129,10 +126,10 @@ export const Button: React.FC<ButtonProps> = ({
       startIcon={loading ? <CircularProgress size={16} color="inherit" /> : startIcon}
       endIcon={endIcon}
       sx={{
-        borderRadius: borderRadius.md,
+        borderRadius: theme.shape.borderRadius / 8,
         textTransform: 'none',
         fontWeight: 600,
-        transition: transitions.fast,
+        transition: 'all 0.2s ease-in-out',
         ...getSizeStyles(),
         ...getVariantStyles(),
         ...sx,

@@ -1,12 +1,13 @@
 /**
  * Input Component - Atomic Design (Atom)
  * 
- * Reusable input field component with consistent styling.
+ * Reusable input field component built on MUI TextField with theme-based styling.
+ * Uses MUI theme palette and spacing - NO hardcoded values!
  */
 
 import React from 'react';
 import { TextField, TextFieldProps } from '@mui/material';
-import { spacing, borderRadius } from '../../../theme/constants';
+import { useTheme } from '@mui/material/styles';
 
 export interface InputProps extends Omit<TextFieldProps, 'size'> {
   /** Input size */
@@ -18,28 +19,30 @@ export const Input: React.FC<InputProps> = ({
   sx,
   ...props
 }) => {
+  const theme = useTheme();
+
   const getSizeStyles = () => {
     switch (size) {
       case 'sm':
         return {
           '& .MuiInputBase-root': {
-            height: '32px',
-            fontSize: '14px',
+            minHeight: theme.spacing(4),
+            fontSize: theme.typography.body2.fontSize,
           },
         };
       case 'lg':
         return {
           '& .MuiInputBase-root': {
-            height: '48px',
-            fontSize: '18px',
+            minHeight: theme.spacing(6),
+            fontSize: theme.typography.h6.fontSize,
           },
         };
       case 'md':
       default:
         return {
           '& .MuiInputBase-root': {
-            height: '40px',
-            fontSize: '16px',
+            minHeight: theme.spacing(5),
+            fontSize: theme.typography.body1.fontSize,
           },
         };
     }
@@ -50,21 +53,21 @@ export const Input: React.FC<InputProps> = ({
       fullWidth
       sx={{
         '& .MuiOutlinedInput-root': {
-          borderRadius: borderRadius.md,
-          bgcolor: 'var(--surface)',
+          borderRadius: theme.shape.borderRadius / 8,
+          bgcolor: 'background.paper',
           '&:hover': {
-            bgcolor: 'var(--surface-hover)',
+            bgcolor: 'action.hover',
           },
           '&.Mui-focused': {
-            bgcolor: 'var(--surface)',
+            bgcolor: 'background.paper',
           },
         },
         '& .MuiInputLabel-root': {
-          color: 'var(--text-secondary)',
+          color: 'text.secondary',
         },
         '& .MuiOutlinedInput-input': {
-          padding: `0 ${spacing.md}`,
-          color: 'var(--text-primary)',
+          px: theme.spacing(2),
+          color: 'text.primary',
         },
         ...getSizeStyles(),
         ...sx,

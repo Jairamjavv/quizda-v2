@@ -170,7 +170,7 @@ const QuestionEditor: React.FC<Props> = ({
             <Button
               variant="contained"
               onClick={addQuestion}
-              sx={{ bgcolor: 'var(--primary-green)', color: '#fff' }}
+              sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}
             >
               {editingId ? 'Update Question' : 'Add Question'}
             </Button>
@@ -193,7 +193,7 @@ const QuestionEditor: React.FC<Props> = ({
             <Button
               variant="contained"
               onClick={finishCreate}
-              sx={{ bgcolor: 'var(--primary-green)', color: '#fff' }}
+              sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}
             >
               Finish & Save Quiz
             </Button>

@@ -30,16 +30,16 @@ export const QuestionDisplay: React.FC<Props> = ({
   onNext
 }) => {
   return (
-    <Paper sx={{ p: 3, bgcolor: 'var(--surface)', width: '80%', mx: 'auto' }}>
+    <Paper sx={{ p: 3, bgcolor: 'background.paper', width: { xs: '95%', sm: '90%', md: '80%' }, mx: 'auto' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h6" sx={{ color: 'var(--text-primary)', mb: 1 }}>
+        <Typography variant="h6" sx={{ color: 'text.primary', mb: 1 }}>
           {question.text}
         </Typography>
         <IconButton onClick={onToggleBookmark} aria-label="bookmark">
-          {isBookmarked ? (
-            <BookmarkIcon sx={{ color: 'var(--primary-green)' }} />
+          {bookmarked ? (
+            <BookmarkIcon sx={{ color: 'primary.main' }} />
           ) : (
-            <BookmarkBorderIcon sx={{ color: 'var(--text-primary)' }} />
+            <BookmarkBorderIcon sx={{ color: 'text.primary' }} />
           )}
         </IconButton>
       </Box>
@@ -51,7 +51,7 @@ export const QuestionDisplay: React.FC<Props> = ({
             value={i}
             control={<Radio />}
             label={c}
-            sx={{ color: 'var(--text-primary)' }}
+            sx={{ color: 'text.primary' }}
           />
         ))}
       </RadioGroup>
@@ -60,7 +60,7 @@ export const QuestionDisplay: React.FC<Props> = ({
         <Button
           onClick={onNext}
           variant="contained"
-          sx={{ bgcolor: 'var(--primary-green)', color: '#fff' }}
+          sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}
         >
           {isLastQuestion ? 'Finish' : 'Next'}
         </Button>

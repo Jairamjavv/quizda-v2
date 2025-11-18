@@ -51,7 +51,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         <Box
           sx={{
             fontSize: '64px',
-            color: 'var(--text-secondary)',
+            color: 'text.secondary',
             opacity: 0.5,
             mb: spacing.lg,
           }}

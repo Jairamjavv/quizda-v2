@@ -47,7 +47,7 @@ export const DragDropQuestion: React.FC<Props> = ({ options, selected, onChange 
             p: 1,
             borderRadius: 1,
             border: '1px solid #eee',
-            bgcolor: '#fff',
+            bgcolor: 'background.paper',
             cursor: 'move',
             '&:hover': { bgcolor: 'action.hover' }
           }}

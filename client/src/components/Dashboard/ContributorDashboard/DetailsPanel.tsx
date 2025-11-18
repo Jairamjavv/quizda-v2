@@ -63,7 +63,7 @@ const DetailsPanel: React.FC<Props> = ({
       </FormControl>
 
       <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-        <Button variant="contained" onClick={onNext} sx={{ bgcolor: 'var(--primary-green)', color: '#fff' }}>Create and add questions</Button>
+        <Button variant="contained" onClick={onNext} sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>Create and add questions</Button>
         <Button onClick={onCancel}>Cancel</Button>
       </Box>
     </Box>

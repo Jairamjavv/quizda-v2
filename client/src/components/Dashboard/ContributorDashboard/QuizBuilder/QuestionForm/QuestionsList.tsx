@@ -10,7 +10,7 @@ type Props = {
 export const QuestionsList: React.FC<Props> = ({ questions, onEdit, onDelete }) => {
   if (questions.length === 0) {
     return (
-      <Box sx={{ mt: 3, p: 2, bgcolor: 'var(--surface)', borderRadius: 1, textAlign: 'center' }}>
+      <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: 1, textAlign: 'center' }}>
         <Typography variant="body2" color="text.secondary">
           No questions added yet. Create your first question above.
         </Typography>
@@ -27,7 +27,7 @@ export const QuestionsList: React.FC<Props> = ({ questions, onEdit, onDelete }) 
           sx={{
             p: 1.5,
             mt: 1,
-            bgcolor: 'var(--surface)',
+            bgcolor: 'background.paper',
             borderRadius: 1,
             display: 'flex',
             alignItems: 'center',

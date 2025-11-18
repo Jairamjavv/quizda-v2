@@ -33,12 +33,12 @@ export const Text: React.FC<TextProps> = ({
     if (!colorType) return undefined;
 
     const colorMap = {
-      primary: 'var(--text-primary)',
-      secondary: 'var(--text-secondary)',
-      success: 'var(--primary-green)',
-      warning: 'var(--primary-orange)',
-      error: 'var(--error)',
-      info: 'var(--accent-blue)',
+      primary: 'text.primary',
+      secondary: 'text.secondary',
+      success: 'success.main',
+      warning: 'warning.main',
+      error: 'error.main',
+      info: 'info.main',
     };
 
     return colorMap[colorType];

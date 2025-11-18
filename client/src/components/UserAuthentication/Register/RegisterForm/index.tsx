@@ -76,8 +76,8 @@ const RegisterForm: React.FC = () => {
   }
 
   return (
-    <Paper sx={{ bgcolor: 'var(--surface)', p: 3 }} component="form" onSubmit={onSubmit}>
-      <Typography variant="h5" sx={{ color: 'var(--text-primary)', mb: 2 }}>
+    <Paper sx={{ bgcolor: 'background.paper', p: 3 }} component="form" onSubmit={onSubmit}>
+      <Typography variant="h5" sx={{ color: 'text.primary', mb: 2 }}>
         Register
       </Typography>
 
@@ -88,7 +88,7 @@ const RegisterForm: React.FC = () => {
           type="submit"
           variant="contained"
           disabled={loading}
-          sx={{ bgcolor: 'var(--primary-green)', color: '#fff' }}
+          sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}
         >
           {loading ? 'Registering…' : 'Register'}
         </Button>

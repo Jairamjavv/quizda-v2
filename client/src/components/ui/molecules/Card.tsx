@@ -57,7 +57,7 @@ export const Card: React.FC<CardProps> = ({
     <Paper
       elevation={0}
       sx={{
-        bgcolor: 'var(--surface)',
+        bgcolor: 'background.paper',
         borderRadius: borderRadius.lg,
         padding: getPaddingValue(),
         boxShadow: getShadowValue(),

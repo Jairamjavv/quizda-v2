@@ -1,13 +1,13 @@
 /**
  * Badge Component - Atomic Design (Atom)
  * 
- * Reusable badge/chip component for tags, labels, and status indicators.
+ * Reusable badge/chip component built on MUI Chip with theme-based styling.
+ * Uses MUI theme palette - NO hardcoded colors!
  */
 
 import React from 'react';
 import { Chip, ChipProps } from '@mui/material';
-import { spacing, borderRadius, typography } from '../../../theme/constants';
-import { designTokens } from '../../../theme/designTokens';
+import { useTheme, alpha } from '@mui/material/styles';
 
 export interface BadgeProps extends Omit<ChipProps, 'size' | 'color' | 'variant' | 'children'> {
   /** Badge variant */
@@ -28,49 +28,56 @@ export const Badge: React.FC<BadgeProps> = ({
   sx,
   ...props
 }) => {
-  const getVariantStyles = () => {
-    const lightTokens = designTokens.light;
+  const theme = useTheme();
 
+  const getVariantStyles = () => {
     switch (variant) {
       case 'success':
         return {
-          bgcolor: lightTokens.primaryGreenLight,
-          color: lightTokens.primaryGreenDark,
-          border: `1px solid ${lightTokens.primaryGreen}`,
+          bgcolor: 'success.light',
+          color: 'success.dark',
+          border: 1,
+          borderColor: 'success.main',
         };
       case 'warning':
         return {
-          bgcolor: lightTokens.primaryOrangeLight,
-          color: lightTokens.primaryOrangeDark,
-          border: `1px solid ${lightTokens.warning}`,
+          bgcolor: 'warning.light',
+          color: 'warning.dark',
+          border: 1,
+          borderColor: 'warning.main',
         };
       case 'error':
         return {
-          bgcolor: '#FFE5E5',
-          color: lightTokens.error,
-          border: `1px solid ${lightTokens.error}`,
+          bgcolor: 'error.light',
+          color: 'error.main',
+          border: 1,
+          borderColor: 'error.main',
         };
       case 'info':
         return {
-          bgcolor: '#E5F2FF',
-          color: lightTokens.accentBlue,
-          border: `1px solid ${lightTokens.accentBlue}`,
+          bgcolor: 'info.light',
+          color: 'info.dark',
+          border: 1,
+          borderColor: 'info.main',
         };
       case 'primary':
         return {
-          bgcolor: lightTokens.primaryGreen,
-          color: '#fff',
+          bgcolor: 'primary.main',
+          color: 'primary.contrastText',
         };
       case 'secondary':
         return {
-          bgcolor: lightTokens.primaryOrange,
-          color: '#fff',
+          bgcolor: 'secondary.main',
+          color: 'secondary.contrastText',
         };
       default:
         return {
-          bgcolor: 'var(--surface)',
-          color: 'var(--text-primary)',
-          border: '1px solid var(--surface-hover)',
+          bgcolor: 'background.paper',
+          color: 'text.primary',
+          border: 1,
+          borderColor: theme.palette.mode === 'light'
+            ? theme.palette.grey[300]
+            : theme.palette.grey[700],
         };
     }
   };
@@ -79,27 +86,27 @@ export const Badge: React.FC<BadgeProps> = ({
     switch (size) {
       case 'sm':
         return {
-          height: '20px',
-          fontSize: typography.fontSize.xs,
+          height: theme.spacing(2.5),
+          fontSize: theme.typography.caption.fontSize,
           '& .MuiChip-label': {
-            padding: `0 ${spacing.xs}`,
+            px: theme.spacing(1),
           },
         };
       case 'lg':
         return {
-          height: '32px',
-          fontSize: typography.fontSize.md,
+          height: theme.spacing(4),
+          fontSize: theme.typography.body1.fontSize,
           '& .MuiChip-label': {
-            padding: `0 ${spacing.md}`,
+            px: theme.spacing(2),
           },
         };
       case 'md':
       default:
         return {
-          height: '24px',
-          fontSize: typography.fontSize.sm,
+          height: theme.spacing(3),
+          fontSize: theme.typography.body2.fontSize,
           '& .MuiChip-label': {
-            padding: `0 ${spacing.sm}`,
+            px: theme.spacing(1.5),
           },
         };
     }
@@ -109,8 +116,8 @@ export const Badge: React.FC<BadgeProps> = ({
     <Chip
       label={label || children}
       sx={{
-        borderRadius: borderRadius.sm,
-        fontWeight: typography.fontWeight.medium,
+        borderRadius: theme.shape.borderRadius / 1.5,
+        fontWeight: theme.typography.fontWeightMedium,
         ...getSizeStyles(),
         ...getVariantStyles(),
         ...sx,

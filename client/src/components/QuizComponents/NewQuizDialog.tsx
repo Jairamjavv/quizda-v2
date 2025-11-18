@@ -91,7 +91,7 @@ const NewQuizDialog: React.FC<Props> = ({ open, onClose }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={start} variant="contained" sx={{ bgcolor: 'var(--primary-green)', color: '#fff' }}>
+          <Button onClick={start} variant="contained" sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
             Next
           </Button>
         </DialogActions>

@@ -4,7 +4,7 @@ import { Box, Typography } from '@mui/material'
 type Props = { qType: string }
 
 const NoticeBoard: React.FC<Props> = ({ qType }) => {
-  const mono = { fontFamily: 'monospace', bgcolor: '#f6f7f9', p: 1, borderRadius: 1 }
+  const mono = { fontFamily: 'monospace', bgcolor: 'action.hover', p: 1, borderRadius: 1 }
   switch (qType) {
     case 'MCQ':
       return (

@@ -22,7 +22,7 @@ export const SubmitConfirmDialog: React.FC<Props> = ({ open, onCancel, onConfirm
           <Button
             onClick={onConfirm}
             variant="contained"
-            sx={{ bgcolor: 'var(--primary-green)', color: '#fff' }}
+            sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}
           >
             Submit
           </Button>

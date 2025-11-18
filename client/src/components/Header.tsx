@@ -43,7 +43,7 @@ const Header: React.FC<HeaderProps> = ({ mode, onToggleMode }) => {
   }
 
   return (
-    <AppBar position="sticky" color="transparent" elevation={0} sx={{ bgcolor: 'var(--surface)' }}>
+    <AppBar position="sticky" color="transparent" elevation={0} sx={{ bgcolor: 'background.paper' }}>
       <Toolbar>
         <Box sx={{ flexGrow: 1 }}>
           <Button component={Link} to="/landing" variant="ghost" sx={{ fontSize: '1.25rem', fontWeight: 600, p: spacing.sm }}>
@@ -107,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ mode, onToggleMode }) => {
         {/* Theme Toggle */}
         <IconButton
           onClick={onToggleMode}
-          sx={{ color: 'var(--text-primary)' }}
+          sx={{ color: 'text.primary' }}
         >
           {mode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
         </IconButton>

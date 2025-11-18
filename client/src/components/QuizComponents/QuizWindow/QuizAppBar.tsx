@@ -18,16 +18,16 @@ export const QuizAppBar: React.FC<Props> = ({ categoryId, onClose, mode, remaini
   }
 
   return (
-    <AppBar sx={{ position: 'relative', bgcolor: 'var(--surface)' }}>
+    <AppBar sx={{ position: 'relative', bgcolor: 'background.paper' }}>
       <Toolbar>
         <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
-          <CloseIcon sx={{ color: 'var(--text-primary)' }} />
+          <CloseIcon sx={{ color: 'text.primary' }} />
         </IconButton>
-        <Typography sx={{ ml: 2, flex: 1, color: 'var(--text-primary)' }} variant="h6" component="div">
+        <Typography sx={{ ml: 2, flex: 1, color: 'text.primary' }} variant="h6" component="div">
           Quiz — {categoryId}
         </Typography>
         {mode === 'timed' && remaining !== null && (
-          <Typography sx={{ color: 'var(--text-primary)' }}>
+          <Typography sx={{ color: 'text.primary' }}>
             {formatTime(remaining)}
           </Typography>
         )}

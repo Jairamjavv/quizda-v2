@@ -79,7 +79,7 @@ const AddQuizDialog: React.FC<Props> = ({ open, onClose, onAdd }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={submit} variant="contained" sx={{ bgcolor: 'var(--primary-green)', color: '#fff' }}>
+        <Button onClick={submit} variant="contained" sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
           Create
         </Button>
       </DialogActions>

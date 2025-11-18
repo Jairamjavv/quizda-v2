@@ -69,7 +69,7 @@ const ContributorDashboard: React.FC = () => {
                 sx={{ 
                   p: spacing.sm, 
                   mb: spacing.sm, 
-                  bgcolor: 'var(--surface)', 
+                  bgcolor: 'background.paper', 
                   borderRadius: borderRadius.md 
                 }}
               >

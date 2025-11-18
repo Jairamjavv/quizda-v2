@@ -56,7 +56,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
         {icon && (
           <Box
             sx={{
-              color: 'var(--primary-green)',
+              color: 'success.main',
               fontSize: large ? '32px' : '24px',
             }}
           >
@@ -95,7 +95,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
                 as="caption"
                 weight="semibold"
                 sx={{
-                  color: trend.value >= 0 ? 'var(--success)' : 'var(--error)',
+                  color: trend.value >= 0 ? 'success.main' : 'error.main',
                 }}
               >
                 {trend.value >= 0 ? '+' : ''}{trend.value}%
