@@ -2,28 +2,26 @@
  * Custom Hook: useAuth
  *
  * Manages authentication state and operations.
- * Separates auth logic from UI components.
+ * Integrates with sessionManager for session persistence and multi-tab sync.
  */
 
 import { useState, useEffect, useCallback } from "react";
 import { AuthService, User, LoginCredentials, RegisterData } from "../services";
+import { sessionManager } from "../services/sessionManager";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const checkAuth = useCallback(async () => {
-    setLoading(true);
-    try {
-      const currentUser = await AuthService.getCurrentUser();
-      setUser(currentUser);
-    } catch (err: any) {
-      setUser(null);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  // Subscribe to sessionManager for state updates
+  useEffect(() => {
+    const unsubscribe = sessionManager.subscribe((authState) => {
+      setUser(authState.user);
+      setLoading(authState.isLoading);
+    });
+
+    return unsubscribe;
   }, []);
 
   const login = useCallback(async (credentials: LoginCredentials) => {
@@ -32,6 +30,8 @@ export function useAuth() {
 
     try {
       const response = await AuthService.login(credentials);
+      // SessionManager is already updated by LoginForm component
+      // This ensures consistency across the app
       setUser(response.user);
       return response;
     } catch (err: any) {
@@ -48,6 +48,8 @@ export function useAuth() {
 
     try {
       const response = await AuthService.register(data);
+      // Update sessionManager with registered user
+      sessionManager.setUser(response.user);
       setUser(response.user);
       return response;
     } catch (err: any) {
@@ -61,7 +63,8 @@ export function useAuth() {
   const logout = useCallback(async () => {
     setLoading(true);
     try {
-      await AuthService.logout();
+      // Use sessionManager logout for proper multi-tab sync
+      await sessionManager.logout();
       setUser(null);
     } catch (err: any) {
       setError(err.message);
@@ -70,21 +73,14 @@ export function useAuth() {
     }
   }, []);
 
-  // Token refresh is handled automatically by axios interceptor
-  // No manual refresh needed
-
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
   return {
     user,
     loading,
     error,
-    isAuthenticated: AuthService.isAuthenticated(),
+    isAuthenticated: !!user,
     login,
     register,
     logout,
-    checkAuth,
+    checkAuth: () => {}, // No longer needed, sessionManager handles this
   };
 }

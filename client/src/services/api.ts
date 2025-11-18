@@ -3,6 +3,7 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
+import { sessionManager } from "./sessionManager";
 
 /**
  * Configure base API URL for Axios with cookie-based authentication
@@ -71,20 +72,29 @@ apiClient.interceptors.response.use(
 
     // Only log errors that are not 401 (unauthorized) or during initial session check
     const isSessionCheck = originalRequest.url?.includes("/api/me");
+    const isRefreshEndpoint = originalRequest.url?.includes("/api/refresh");
     const is401 = error.response?.status === 401;
 
-    if (!is401 || !isSessionCheck) {
+    if (!is401 || (!isSessionCheck && !isRefreshEndpoint)) {
       console.error("[API Error]", error.response?.status, error.message);
     }
 
     // Handle 401 Unauthorized - attempt token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Don't attempt refresh for /api/me (session check) or auth endpoints
+      // Don't attempt refresh for specific endpoints
       const isAuthEndpoint =
         originalRequest.url?.includes("/api/login") ||
-        originalRequest.url?.includes("/api/register");
+        originalRequest.url?.includes("/api/register") ||
+        originalRequest.url?.includes("/api/logout");
 
-      if (isSessionCheck || isAuthEndpoint) {
+      // Don't retry /api/me or /api/refresh endpoints
+      if (isSessionCheck || isRefreshEndpoint || isAuthEndpoint) {
+        // If refresh endpoint failed, session is expired
+        if (isRefreshEndpoint) {
+          console.log("[API] Refresh token expired, logging out");
+          // Let sessionManager handle the expiration
+          await sessionManager.logout();
+        }
         return Promise.reject(error);
       }
 
@@ -105,31 +115,32 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Attempt to refresh the token
-        await apiClient.post("/api/refresh");
+        console.log("[API] Access token expired, refreshing...");
 
-        // Token refreshed successfully, process queued requests
-        processQueue();
-        isRefreshing = false;
+        // Use sessionManager's refresh method for consistency
+        const refreshed = await sessionManager.refreshToken();
 
-        // Retry the original request
-        return apiClient(originalRequest);
+        if (refreshed) {
+          // Token refreshed successfully, process queued requests
+          console.log(
+            "[API] Token refresh successful, retrying queued requests"
+          );
+          processQueue();
+          isRefreshing = false;
+
+          // Retry the original request
+          return apiClient(originalRequest);
+        } else {
+          // Refresh failed
+          throw new Error("Token refresh failed");
+        }
       } catch (refreshError) {
-        // Token refresh failed, clear queue and redirect to login
+        // Token refresh failed, clear queue
+        console.log("[API] Token refresh failed, clearing queue");
         processQueue(refreshError);
         isRefreshing = false;
 
-        // Clear user data (tokens are in HTTP-only cookies)
-        localStorage.removeItem("user");
-
-        // Redirect to login page only if not already on auth pages
-        if (
-          window.location.pathname !== "/login" &&
-          window.location.pathname !== "/register"
-        ) {
-          window.location.href = "/login";
-        }
-
+        // SessionManager already handled logout, just reject
         return Promise.reject(refreshError);
       }
     }

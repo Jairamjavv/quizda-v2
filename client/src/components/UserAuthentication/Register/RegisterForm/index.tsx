@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Paper, Typography, Button, Box } from '@mui/material'
 import { useNotification } from '../../../../context/NotificationContext'
-import { apiRegister } from '../../../../services/quizApi'
-import { registerWithFirebase } from '../../../../services/firebase'
+import { useAuth } from '../../../../hooks/useAuth'
+import { sessionManager } from '../../../../services/sessionManager'
 import { RegisterFormFields } from './RegisterFormFields'
 import { FormState, initialFormState, validateRegistrationForm } from './validation'
 
@@ -13,6 +13,7 @@ const RegisterForm: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const notify = useNotification()
+  const { register } = useAuth()
 
   const handleChange = (key: keyof FormState) => (e: any) => {
     setForm((s) => ({ ...s, [key]: e.target.value }))
@@ -30,27 +31,35 @@ const RegisterForm: React.FC = () => {
 
     setLoading(true)
     try {
-      // Step 1: Create user in Firebase Authentication
-      const firebaseUser = await registerWithFirebase(
-        form.email,
-        form.password,
-        form.username
-      )
-      
-      // Step 2: Register user in D1 database with Firebase UID
-      await apiRegister({
+      // Use AuthService register (includes Firebase registration)
+      const response = await register({
         email: form.email,
         username: form.username,
         password: form.password,
         role: form.role,
-        firebaseUid: firebaseUser.uid
       })
       
-      notify('Registration successful.', { severity: 'success' })
+      // Update sessionManager with registered user
+      if (response.user) {
+        sessionManager.setUser(response.user)
+      }
+      
+      notify('Registration successful! Redirecting to dashboard...', { severity: 'success' })
       setForm(initialFormState)
-      setTimeout(() => navigate('/login'), 1200)
+      
+      // Navigate based on user role
+      const role = response.user?.role
+      setTimeout(() => {
+        if (role === 'admin') {
+          navigate('/dashboard/admin')
+        } else if (role === 'contributor') {
+          navigate('/dashboard/contributor')
+        } else {
+          navigate('/dashboard/attempter')
+        }
+      }, 1000)
     } catch (err: any) {
-      const errMsg = err?.response?.data?.message || err?.message || 'Registration failed.'
+      const errMsg = err?.message || 'Registration failed.'
       notify(errMsg, { severity: 'error' })
     } finally {
       setLoading(false)
