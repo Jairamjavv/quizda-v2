@@ -37,15 +37,16 @@ const STORAGE_KEYS = {
 export class AuthService {
   /**
    * Login user
+   *
+   * SECURITY: Tokens stored in HTTP-only cookies only
+   * No localStorage usage for authentication data
    */
   static async login(credentials: LoginCredentials): Promise<{ user: User }> {
     try {
       const response = await apiClient.post("/api/login", credentials);
 
-      if (response.data.user) {
-        this.setUser(response.data.user);
-        // Token is in HTTP-only cookie, no need to store it
-      }
+      // Tokens are in HTTP-only cookies, no manual storage needed
+      // Do NOT store user in localStorage for security
 
       return response.data;
     } catch (error: any) {
@@ -55,15 +56,16 @@ export class AuthService {
 
   /**
    * Register new user
+   *
+   * SECURITY: Tokens stored in HTTP-only cookies only
+   * No localStorage usage for authentication data
    */
   static async register(data: RegisterData): Promise<{ user: User }> {
     try {
       const response = await apiClient.post("/api/register", data);
 
-      if (response.data.user) {
-        this.setUser(response.data.user);
-        // Token is in HTTP-only cookie, no need to store it
-      }
+      // Tokens are in HTTP-only cookies, no manual storage needed
+      // Do NOT store user in localStorage for security
 
       return response.data;
     } catch (error: any) {
@@ -73,62 +75,49 @@ export class AuthService {
 
   /**
    * Logout user
+   *
+   * SECURITY: Clears HTTP-only cookies on backend
    */
   static async logout(): Promise<void> {
     try {
       await apiClient.post("/api/logout");
     } catch (error) {
       console.error("Logout API call failed:", error);
-    } finally {
-      this.clearSession();
     }
+    // No localStorage cleanup needed - no auth data stored locally
   }
 
   /**
    * Get current user from session
+   *
+   * SECURITY: Validates session via HTTP-only cookies
+   * No localStorage usage
    */
   static async getCurrentUser(): Promise<User | null> {
     try {
       const response = await apiClient.get("/api/me");
       if (response.data.user) {
-        this.setUser(response.data.user);
         return response.data.user;
       }
       return null;
     } catch (error) {
-      this.clearSession();
       return null;
     }
   }
 
   /**
    * Check if user is authenticated
+   *
+   * NOTE: This is a client-side check only
+   * Real authentication is verified via HTTP-only cookies on the server
+   * Use sessionManager.isAuthenticated for accurate state
    */
   static isAuthenticated(): boolean {
-    // Only check if user exists in localStorage
-    // Token is in HTTP-only cookie and handled by the browser
-    return this.getUser() !== null;
-  }
-
-  /**
-   * Get stored user
-   */
-  static getUser(): User | null {
-    return LocalStorageService.getItem<User | null>(STORAGE_KEYS.USER, null);
-  }
-
-  /**
-   * Set user in storage
-   */
-  static setUser(user: User): void {
-    LocalStorageService.setItem(STORAGE_KEYS.USER, user);
-  }
-
-  /**
-   * Clear session data
-   */
-  static clearSession(): void {
-    LocalStorageService.removeItem(STORAGE_KEYS.USER);
-    // Tokens are in HTTP-only cookies and cleared by logout endpoint
+    // This method is deprecated - use sessionManager instead
+    // Cannot determine auth state without calling /api/me
+    console.warn(
+      "AuthService.isAuthenticated() is deprecated. Use sessionManager.getState().isAuthenticated instead."
+    );
+    return false;
   }
 }

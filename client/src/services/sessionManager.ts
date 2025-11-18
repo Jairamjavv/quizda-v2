@@ -16,9 +16,10 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   "https://quizda-worker-prod.b-jairam0512.workers.dev";
 
-// Storage keys for cross-tab communication
+// Storage keys for cross-tab communication and activity tracking
+// NOTE: USER is NOT stored in localStorage for security
+// Only session events and activity timestamps are stored
 const STORAGE_KEYS = {
-  USER: "quizda_user",
   SESSION_EVENT: "quizda_session_event",
   LAST_ACTIVITY: "quizda_last_activity",
 } as const;
@@ -162,24 +163,19 @@ class SessionManager {
 
   /**
    * Initialize session from server
+   *
+   * SECURITY: No localStorage usage for authentication data
+   * All auth state comes from HTTP-only cookies verified by the server
    */
   private async initializeSession() {
     if (this.isInitialized) return;
 
     try {
-      // First, check if we have a user in localStorage (quick check)
-      const storedUser = this.getStoredUser();
-      if (storedUser) {
-        // Optimistically set user while verifying with server
-        this.authState.user = storedUser;
-        this.authState.isAuthenticated = true;
-        this.notifyListeners();
-      }
-
-      // Verify session with server
+      // Verify session with server (cookies sent automatically)
+      // No optimistic UI from localStorage - all auth data comes from server
       const response = await fetch(`${API_BASE_URL}/api/me`, {
         method: "GET",
-        credentials: "include", // Include cookies
+        credentials: "include", // Include HTTP-only cookies
         headers: {
           "Content-Type": "application/json",
         },
@@ -192,7 +188,7 @@ class SessionManager {
         this.startExpirationCheck();
         this.updateLastActivity();
       } else if (response.status === 401) {
-        // Session expired or invalid
+        // Session expired or invalid - this is expected when not logged in
         console.log("[SessionManager] No valid session found");
         this.clearUser(false); // Don't broadcast on initial load
       } else {
@@ -210,20 +206,6 @@ class SessionManager {
       this.notifyListeners();
     }
   }
-
-  /**
-   * Get user from localStorage
-   */
-  private getStoredUser(): User | null {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEYS.USER);
-      return stored ? JSON.parse(stored) : null;
-    } catch (error) {
-      console.error("Failed to parse stored user:", error);
-      return null;
-    }
-  }
-
   /**
    * Set authenticated user
    * @param user - User object
@@ -236,24 +218,20 @@ class SessionManager {
       isLoading: false,
     };
 
-    // Store user in localStorage for persistence and cross-tab access
-    try {
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-      this.updateLastActivity();
-    } catch (error) {
-      console.error("Failed to store user:", error);
-    }
+    // DO NOT store user in localStorage (security best practice)
+    // Authentication state is managed via HTTP-only cookies only
+    // Only update activity timestamp
+    this.updateLastActivity();
 
     this.notifyListeners();
     this.scheduleTokenRefresh();
     this.startExpirationCheck();
 
-    // Broadcast login event to other tabs
+    // Broadcast login event to other tabs (includes user data in event)
     if (broadcast) {
       this.broadcastSessionEvent("login", user);
     }
   }
-
   /**
    * Clear user session
    * @param broadcast - Whether to broadcast to other tabs (default: true)
@@ -265,12 +243,11 @@ class SessionManager {
       isLoading: false,
     };
 
-    // Clear stored user data
+    // Clear activity timestamp only (no user data stored in localStorage)
     try {
-      localStorage.removeItem(STORAGE_KEYS.USER);
       localStorage.removeItem(STORAGE_KEYS.LAST_ACTIVITY);
     } catch (error) {
-      console.error("Failed to clear stored user:", error);
+      console.error("Failed to clear activity timestamp:", error);
     }
 
     // Clear all timers
@@ -290,7 +267,6 @@ class SessionManager {
       this.broadcastSessionEvent("logout");
     }
   }
-
   /**
    * Get current auth state
    */
