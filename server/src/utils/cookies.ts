@@ -110,12 +110,14 @@ export function setAuthCookies(
   const accessTokenMaxAge = 15 * 60; // 15 minutes
   const refreshTokenMaxAge = 7 * 24 * 60 * 60; // 7 days
 
-  // Use Lax SameSite for both environments to allow cookies across tabs
-  // while still providing CSRF protection
+  // CRITICAL: Use SameSite=None for cross-site cookies (different domains)
+  // Frontend: quizda-v2-client.pages.dev
+  // Backend: quizda-worker-prod.b-jairam0512.workers.dev
+  // These are different sites, so we need SameSite=None to allow cookies
   const cookieOptions: CookieOptions = {
     httpOnly: true,
-    secure: true, // Always true - protects against man-in-the-middle attacks
-    sameSite: "Lax", // Lax allows cookies on same-site navigation (new tabs, bookmarks)
+    secure: true, // Required when using SameSite=None
+    sameSite: "None", // Allow cross-site cookie transmission
     path: "/",
   };
 
