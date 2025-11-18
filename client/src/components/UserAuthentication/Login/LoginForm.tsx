@@ -10,8 +10,7 @@ import {
   Checkbox,
   Alert
 } from '@mui/material'
-import { apiLogin } from '../../../services/quizApi'
-import { loginWithFirebase } from '../../../services/firebase'
+import { useAuth } from '../../../hooks/useAuth'
 import { Button, FormField, Text } from '../../ui'
 import { spacing } from '../../../theme/constants'
 
@@ -22,19 +21,18 @@ type LoginFormProps = {
 type LoginFormState = {
   email: string
   password: string
-  role: 'contributor' | 'attempter' | 'admin'
   remember: boolean
 }
 
-const initial: LoginFormState = { email: '', password: '', role: 'attempter', remember: false }
+const initial: LoginFormState = { email: '', password: '', remember: false }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
   const [form, setForm] = useState<LoginFormState>(initial)
   const [errors, setErrors] = useState<Partial<LoginFormState>>({})
-  const [loading, setLoading] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const navigate = useNavigate()
+  const { login, loading } = useAuth()
 
   const handle = (k: keyof LoginFormState) => (e: any) => {
     const value = k === 'remember' ? e.target.checked : e.target.value
@@ -55,36 +53,26 @@ const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
   const onSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault()
     if (!validate()) return
-    setLoading(true)
+    
     setServerError(null)
     try {
-      // Step 1: Authenticate with Firebase
-      const firebaseUser = await loginWithFirebase(
-        form.email,
-        form.password
-      )
-      
-      // Step 2: Login to backend with Firebase UID
-      const response = await apiLogin({
+      // Use the new AuthService login
+      const response = await login({
         email: form.email,
         password: form.password,
-        role: form.role,
-        remember: form.remember,
-        firebaseUid: firebaseUser.uid
       })
-      // Navigate to role-specific dashboard
-      try {
-        // Persisted by apiLogin; also set again here for safety
-        localStorage.setItem('user', JSON.stringify(response.user))
-      } catch {}
-      const role = response.user?.role || form.role
-      if (role === 'admin') navigate('/dashboard/admin')
-      else if (role === 'contributor') navigate('/dashboard/contributor')
-      else navigate('/dashboard/attempter')
+      
+      // Navigate based on user role
+      const role = response.user?.role
+      if (role === 'admin') {
+        navigate('/dashboard/admin')
+      } else if (role === 'contributor') {
+        navigate('/dashboard/contributor')
+      } else {
+        navigate('/dashboard/attempter')
+      }
     } catch (err: any) {
-      setServerError(err?.response?.data?.message || err?.message || 'Login failed.')
-    } finally {
-      setLoading(false)
+      setServerError(err?.message || 'Login failed.')
     }
   }
 
@@ -128,15 +116,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
           margin="normal"
           required
         />
-
-        <FormControl fullWidth margin="normal">
-          <InputLabel id="login-role-label">Role</InputLabel>
-          <Select labelId="login-role-label" value={form.role} label="Role" onChange={handle('role')}>
-            <MenuItem value="attempter">Attempter</MenuItem>
-            <MenuItem value="contributor">Contributor</MenuItem>
-            <MenuItem value="admin">Admin</MenuItem>
-          </Select>
-        </FormControl>
 
         <Box sx={{ display: 'flex', alignItems: 'center', mt: spacing.xs }}>
           <Checkbox checked={form.remember} onChange={handle('remember')} />

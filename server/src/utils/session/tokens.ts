@@ -6,6 +6,25 @@ import type { SessionPayload, RefreshTokenPayload } from "./types";
 import { ACCESS_TOKEN_EXPIRY, REFRESH_TOKEN_EXPIRY } from "./types";
 
 /**
+ * Convert base64 to base64url (URL-safe)
+ */
+function toBase64Url(base64: string): string {
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
+
+/**
+ * Convert base64url back to base64
+ */
+function fromBase64Url(base64url: string): string {
+  let base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+  // Add padding if needed
+  while (base64.length % 4) {
+    base64 += "=";
+  }
+  return base64;
+}
+
+/**
  * Generate a JWT-like access token with short expiry
  */
 export async function generateAccessToken(
@@ -23,9 +42,8 @@ export async function generateAccessToken(
     exp: Date.now() + ACCESS_TOKEN_EXPIRY,
   };
 
-  // In production, use a proper JWT library with signing
-  // For now, using base64 encoding (should be signed with HMAC/RS256)
-  return btoa(JSON.stringify(payload));
+  // Use base64url encoding (URL-safe)
+  return toBase64Url(btoa(JSON.stringify(payload)));
 }
 
 /**
@@ -44,7 +62,7 @@ export async function generateRefreshToken(
     exp: Date.now() + REFRESH_TOKEN_EXPIRY,
   };
 
-  return btoa(JSON.stringify(payload));
+  return toBase64Url(btoa(JSON.stringify(payload)));
 }
 
 /**
@@ -52,7 +70,13 @@ export async function generateRefreshToken(
  */
 export function verifyAccessToken(token: string): SessionPayload | null {
   try {
-    const payload = JSON.parse(atob(token)) as SessionPayload;
+    // Convert base64url back to base64
+    let base64 = token.replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4) {
+      base64 += "=";
+    }
+
+    const payload = JSON.parse(atob(base64)) as SessionPayload;
 
     // Check if token is expired
     if (payload.exp < Date.now()) {
@@ -70,7 +94,13 @@ export function verifyAccessToken(token: string): SessionPayload | null {
  */
 export function verifyRefreshToken(token: string): RefreshTokenPayload | null {
   try {
-    const payload = JSON.parse(atob(token)) as RefreshTokenPayload;
+    // Convert base64url back to base64
+    let base64 = token.replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4) {
+      base64 += "=";
+    }
+
+    const payload = JSON.parse(atob(base64)) as RefreshTokenPayload;
 
     // Check if token is expired
     if (payload.exp < Date.now()) {
