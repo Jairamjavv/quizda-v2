@@ -24,8 +24,12 @@ export async function csrfProtection(
     if (
       path.includes("/api/auth/login") ||
       path.includes("/api/auth/register") ||
+      path.includes("/api/auth/logout") ||
+      path.includes("/api/auth/refresh") ||
       path.includes("/api/login") ||
-      path.includes("/api/register")
+      path.includes("/api/register") ||
+      path.includes("/api/logout") ||
+      path.includes("/api/refresh")
     ) {
       return await next();
     }
