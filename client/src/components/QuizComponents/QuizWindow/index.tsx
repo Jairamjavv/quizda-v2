@@ -4,38 +4,59 @@ import { QuizMode, Question } from '../types'
 import { QuizAppBar } from './QuizAppBar'
 import { QuestionDisplay } from './QuestionDisplay'
 import { SubmitConfirmDialog } from './SubmitConfirmDialog'
+import { apiGetQuizQuestions, apiCreateAttempt, apiCompleteAttempt } from '../../../services/quizApi'
 
 type Props = {
   open: boolean
   onClose: () => void
   mode: QuizMode
-  categoryId: string
+  quizId: string | number
+  title?: string
   totalTimeSeconds?: number
 }
 
-// Simple mock questions generator
-function makeQuestions(categoryId: string): Question[] {
-  return [
-    { id: 'q1', text: `Sample question 1 (${categoryId})`, choices: ['A', 'B', 'C', 'D'], answerIndex: 0 },
-    { id: 'q2', text: `Sample question 2 (${categoryId})`, choices: ['True', 'False'], answerIndex: 1 },
-    { id: 'q3', text: `Sample question 3 (${categoryId})`, choices: ['1', '2', '3'], answerIndex: 2 }
-  ]
-}
-
-const QuizWindow: React.FC<Props> = ({ open, onClose, mode, categoryId, totalTimeSeconds }) => {
-  const [questions] = useState<Question[]>(() => makeQuestions(categoryId))
+const QuizWindow: React.FC<Props> = ({ open, onClose, mode, quizId, title, totalTimeSeconds }) => {
+  const [questions, setQuestions] = useState<Question[]>([])
   const [index, setIndex] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
   const [answers, setAnswers] = useState<Record<string, number>>({})
   const [bookmarks, setBookmarks] = useState<Record<string, boolean>>({})
   const [remaining, setRemaining] = useState<number | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [attemptId, setAttemptId] = useState<number | null>(null)
+  const [startedAt, setStartedAt] = useState<number | null>(null)
 
   useEffect(() => {
     setIndex(0)
     setSelected(null)
     setAnswers({})
-  }, [categoryId, mode])
+    setBookmarks({})
+    setAttemptId(null)
+    setStartedAt(null)
+    if (!open) return
+
+    // Fetch questions from backend when window opens
+    ;(async () => {
+      try {
+        setLoading(true)
+        const res = await apiGetQuizQuestions(quizId)
+        const qs = res.questions || []
+        setQuestions(qs)
+
+        // Create attempt record
+        const attempt = await apiCreateAttempt({ quizId, totalQuestions: qs.length })
+        if (attempt && attempt.id) {
+          setAttemptId(attempt.id)
+        }
+        setStartedAt(Date.now())
+      } catch (err) {
+        console.error('Failed to load questions or start attempt', err)
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }, [quizId, mode, open])
 
   useEffect(() => {
     if (mode !== 'timed' || !totalTimeSeconds || !open) {
@@ -82,28 +103,74 @@ const QuizWindow: React.FC<Props> = ({ open, onClose, mode, categoryId, totalTim
       setAnswers((a) => ({ ...a, [questions[index].id]: selected }))
     }
     setConfirmOpen(false)
-    onClose()
+    // Build answers payload and complete attempt
+    ;(async () => {
+      try {
+        const qs = questions
+        const total = qs.length
+        let correct = 0
+        const payloadAnswers = qs.map((q, idx) => {
+          const userAns = typeof answers[q.id] !== 'undefined' ? answers[q.id] : null
+          const isCorrect = typeof q.answerIndex === 'number' && userAns !== null ? userAns === q.answerIndex : false
+          if (isCorrect) correct += 1
+          return {
+            questionIndex: idx,
+            userAnswer: userAns,
+            isCorrect,
+            timeSpent: null,
+          }
+        })
+
+        const score = total > 0 ? Math.round((correct / total) * 100) : 0
+        const timeTaken = startedAt ? Math.floor((Date.now() - startedAt) / 1000) : null
+
+        if (!attemptId) {
+          // No attempt record; still close and record locally
+          console.warn('No attemptId available when submitting')
+          onClose()
+          return
+        }
+
+        await apiCompleteAttempt(attemptId, {
+          score,
+          correctAnswers: correct,
+          timeTaken,
+          answers: payloadAnswers,
+        })
+
+        onClose()
+      } catch (err) {
+        console.error('Failed to complete attempt', err)
+        onClose()
+      }
+    })()
   }
 
   return (
     <Dialog fullScreen open={open} onClose={onClose}>
       <QuizAppBar
-        categoryId={categoryId}
+        categoryId={title || String(quizId)}
         onClose={onClose}
         mode={mode}
         remaining={remaining}
       />
 
       <Box sx={{ p: 3 }}>
-        <QuestionDisplay
-          question={questions[index]}
-          selected={selected}
-          isBookmarked={bookmarks[questions[index].id] || false}
-          isLastQuestion={index === questions.length - 1}
-          onSelect={handleSelect}
-          onToggleBookmark={() => toggleBookmark(questions[index].id)}
-          onNext={handleNext}
-        />
+        {loading ? (
+          <div>Loading questions...</div>
+        ) : questions.length === 0 ? (
+          <div>No questions found for this quiz.</div>
+        ) : (
+          <QuestionDisplay
+            question={questions[index]}
+            selected={selected}
+            isBookmarked={bookmarks[questions[index].id] || false}
+            isLastQuestion={index === questions.length - 1}
+            onSelect={handleSelect}
+            onToggleBookmark={() => toggleBookmark(questions[index].id)}
+            onNext={handleNext}
+          />
+        )}
       </Box>
 
       <SubmitConfirmDialog

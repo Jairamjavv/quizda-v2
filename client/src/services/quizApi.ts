@@ -197,6 +197,36 @@ export const apiGetQuizQuestions = async (
 };
 
 /**
+ * Create an attempt record (start quiz)
+ */
+export const apiCreateAttempt = async (data: {
+  quizId: number | string;
+  totalQuestions?: number;
+}): Promise<any> => {
+  const response = await apiClient.post(`/api/attempts`, data);
+  return response.data;
+};
+
+/**
+ * Complete an attempt with answers
+ */
+export const apiCompleteAttempt = async (
+  attemptId: number | string,
+  data: {
+    score: number;
+    correctAnswers: number;
+    timeTaken?: number | null;
+    answers: Array<any>;
+  }
+): Promise<any> => {
+  const response = await apiClient.put(
+    `/api/attempts/${attemptId}/complete`,
+    data
+  );
+  return response.data;
+};
+
+/**
  * Clear authentication (logout) - uses cookie-based session
  */
 export const apiLogout = async (): Promise<void> => {

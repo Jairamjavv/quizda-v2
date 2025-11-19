@@ -115,7 +115,14 @@ const QuizCatalog: React.FC = () => {
       </Box>
 
       {openQuiz && (
-        <QuizWindow open={true} onClose={() => setOpenQuiz(null)} mode={openQuiz.totalTimeMinutes ? 'timed' : 'zen'} categoryId={openQuiz.title} totalTimeSeconds={openQuiz.totalTimeMinutes ? openQuiz.totalTimeMinutes * 60 : undefined} />
+        <QuizWindow
+          open={true}
+          onClose={() => setOpenQuiz(null)}
+          mode={openQuiz.totalTimeMinutes ? 'timed' : 'zen'}
+          quizId={openQuiz.id}
+          title={openQuiz.title}
+          totalTimeSeconds={openQuiz.totalTimeMinutes ? openQuiz.totalTimeMinutes * 60 : undefined}
+        />
       )}
     </Box>
   )
