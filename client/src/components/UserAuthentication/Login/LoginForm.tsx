@@ -8,11 +8,12 @@ import {
   Select,
   MenuItem,
   Checkbox,
-  Alert
+  Alert,
+  TextField
 } from '@mui/material'
 import { useAuth } from '../../../hooks/useAuth'
 import { sessionManager } from '../../../services/sessionManager'
-import { Button, FormField, Text } from '../../ui'
+import { Button, Text } from '../../ui'
 import { spacing } from '../../../theme/constants'
 
 type LoginFormProps = {
@@ -20,13 +21,13 @@ type LoginFormProps = {
 }
 
 type LoginFormState = {
-  email: string
+  username: string
   password: string
   role: 'contributor' | 'attempter' | 'admin'
   remember: boolean
 }
 
-const initial: LoginFormState = { email: '', password: '', role: 'attempter', remember: false }
+const initial: LoginFormState = { username: '', password: '', role: 'attempter', remember: false }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
   const [form, setForm] = useState<LoginFormState>(initial)
@@ -46,7 +47,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
 
   const validate = () => {
     const e: Partial<LoginFormState> = {}
-    if (!form.email) e.email = 'Email is required'
+    if (!form.username) e.username = 'Username is required'
     if (!form.password) e.password = 'Password is required'
     setErrors(e)
     return Object.keys(e).length === 0
@@ -55,20 +56,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
   const onSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault()
     if (!validate()) return
-    
+
     setServerError(null)
     try {
-      // Use the new AuthService login
+      // Use username instead of email for login
       const response = await login({
-        email: form.email,
+        email: form.username, // Backend expects 'email' but we send username
         password: form.password,
       })
-      
+
       // Update sessionManager with the logged-in user
       if (response.user) {
         sessionManager.setUser(response.user)
       }
-      
+
       // Navigate based on user role
       const role = response.user?.role
       if (role === 'admin') {
@@ -102,26 +103,43 @@ const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
           </Alert>
         )}
 
-        <FormField
-          label="Email Address"
-          type="email"
-          value={form.email}
-          onChange={handle('email')}
-          error={errors.email}
+        <TextField
+          label="Username"
+          value={form.username}
+          onChange={handle('username')}
+          error={!!errors.username}
+          helperText={errors.username}
           fullWidth
           margin="normal"
           required
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              '&.Mui-error fieldset': {
+                borderColor: 'error.main',
+                borderWidth: 2,
+              },
+            },
+          }}
         />
 
-        <FormField
+        <TextField
           label="Password"
           type="password"
           value={form.password}
           onChange={handle('password')}
-          error={errors.password}
+          error={!!errors.password}
+          helperText={errors.password}
           fullWidth
           margin="normal"
           required
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              '&.Mui-error fieldset': {
+                borderColor: 'error.main',
+                borderWidth: 2,
+              },
+            },
+          }}
         />
 
         <FormControl fullWidth margin="normal">

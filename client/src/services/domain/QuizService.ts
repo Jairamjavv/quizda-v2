@@ -13,9 +13,16 @@ export interface Quiz {
   title: string;
   description?: string;
   category?: string;
+  subcategory?: string;
+  tags?: string[];
   difficulty?: string;
   questions?: any[];
   questionsCount?: number;
+  totalQuestions?: number;
+  totalTimeMinutes?: number;
+  timeLimit?: number;
+  r2Key?: string | null;
+  isPublished?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

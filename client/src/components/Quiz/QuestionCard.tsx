@@ -1,3 +1,3 @@
-export { default } from './QuestionCard'
+// Re-exports
 export type { Question, QuestionType, HotspotArea } from './QuestionCard/types'
 export { SAMPLE_QUESTIONS } from './QuestionCard/sampleData'

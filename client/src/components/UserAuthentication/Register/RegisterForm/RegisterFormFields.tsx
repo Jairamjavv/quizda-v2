@@ -27,6 +27,14 @@ export const RegisterFormFields: React.FC<Props> = ({ form, errors, onChange }) 
         fullWidth
         margin="normal"
         required
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            '&.Mui-error fieldset': {
+              borderColor: 'error.main',
+              borderWidth: 2,
+            },
+          },
+        }}
       />
 
       <TextField
@@ -38,6 +46,14 @@ export const RegisterFormFields: React.FC<Props> = ({ form, errors, onChange }) 
         fullWidth
         margin="normal"
         required
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            '&.Mui-error fieldset': {
+              borderColor: 'error.main',
+              borderWidth: 2,
+            },
+          },
+        }}
       />
 
       <TextField
@@ -46,10 +62,18 @@ export const RegisterFormFields: React.FC<Props> = ({ form, errors, onChange }) 
         value={form.password}
         onChange={onChange('password')}
         error={!!errors.password}
-        helperText={errors.password}
+        helperText={errors.password || 'Must be at least 8 characters with uppercase, lowercase, number, and special character'}
         fullWidth
         margin="normal"
         required
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            '&.Mui-error fieldset': {
+              borderColor: 'error.main',
+              borderWidth: 2,
+            },
+          },
+        }}
       />
 
       <TextField
@@ -62,6 +86,14 @@ export const RegisterFormFields: React.FC<Props> = ({ form, errors, onChange }) 
         fullWidth
         margin="normal"
         required
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            '&.Mui-error fieldset': {
+              borderColor: 'error.main',
+              borderWidth: 2,
+            },
+          },
+        }}
       />
 
       <FormControl fullWidth margin="normal">
