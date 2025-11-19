@@ -147,7 +147,7 @@ const ContributorQuizBuilder: React.FC = () => {
               totalTimeMinutes={totalTimeMinutes}
               setTotalTimeMinutes={setTotalTimeMinutes}
               quizCategories={quizCategories}
-              onNext={() => navigate('/quiz-catalog', { state: { category, totalTimeMinutes } })}
+              onNext={() => setStage('editor')}
               onCancel={() => navigate(-1)}
             />
           </Box>

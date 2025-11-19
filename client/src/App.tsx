@@ -14,6 +14,7 @@ import Login from './components/UserAuthentication/Login/index'
 import Register from './components/UserAuthentication/Register/index'
 import Header from './components/Header'
 import ProtectedRoute from './components/ProtectedRoute'
+import PublicRoute from './components/PublicRoute'
 import { usePlatformStatistics } from './hooks'
 
 const App: React.FC = () => {
@@ -34,11 +35,11 @@ const App: React.FC = () => {
 
         <Container maxWidth="md" sx={{ mt: 2 }}>
           <Routes>
-            {/* Public routes */}
+            {/* Public routes - redirect to dashboard if already logged in */}
             <Route path="/" element={<Navigate to="/landing" replace />} />
-            <Route path="/landing" element={<LandingPage {...landingStats} />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/landing" element={<PublicRoute><LandingPage {...landingStats} /></PublicRoute>} />
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
             
             {/* Protected routes - require authentication */}
             <Route 
@@ -76,7 +77,7 @@ const App: React.FC = () => {
             <Route 
               path="/quiz-catalog" 
               element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="attempter">
                   <QuizCatalog />
                 </ProtectedRoute>
               } 
