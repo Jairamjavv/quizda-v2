@@ -150,6 +150,8 @@ export class QuizBusinessService {
       isPublished: quiz.isPublished,
       timeLimit: quiz.timeLimit || undefined,
       questionsCount: quiz.totalQuestions,
+      totalQuestions: quiz.totalQuestions,
+      r2Key: quiz.r2Key,
       createdAt: quiz.createdAt.toISOString(),
       updatedAt: quiz.updatedAt.toISOString(),
     };

@@ -16,6 +16,13 @@ export interface User {
   updatedAt: Date;
 }
 
+export interface Category {
+  id: number;
+  name: string;
+  description: string | null;
+  createdAt: Date;
+}
+
 export interface Quiz {
   id: number;
   title: string;

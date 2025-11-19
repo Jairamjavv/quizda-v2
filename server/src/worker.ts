@@ -1,7 +1,13 @@
 import { Hono } from "hono";
 import openapi from "../openapi.json";
 import type { Env, Variables } from "./types";
-import { authRoutes, quizRoutes, attemptRoutes, csrfRoutes } from "./routes";
+import {
+  authRoutes,
+  quizRoutes,
+  attemptRoutes,
+  csrfRoutes,
+  categoryRoutes,
+} from "./routes";
 import {
   securityHeaders,
   rateLimitMiddleware,
@@ -108,6 +114,7 @@ app.route("/api/auth", authRoutes); // Auth routes: /api/auth/register, /api/aut
 app.route("/api/quizzes", quizRoutes); // Quiz routes: /api/quizzes, /api/quizzes/:id, etc.
 app.route("/api/attempts", attemptRoutes); // Attempt routes: /api/attempts, /api/attempts/user/:userId, etc.
 app.route("/api/csrf", csrfRoutes); // CSRF routes: /api/csrf/token
+app.route("/api/categories", categoryRoutes); // Category routes: /api/categories
 
 // Backward compatibility: Keep old auth routes at /api/ level
 app.post("/api/register", (c) => AuthController.register(c));

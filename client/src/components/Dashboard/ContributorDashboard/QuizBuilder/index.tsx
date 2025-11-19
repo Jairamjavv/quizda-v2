@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Box, Typography } from '@mui/material'
+import { Box, Typography, CircularProgress, Alert } from '@mui/material'
 import quizCategories from '../../../../data/quizCategories'
+import { apiCreateQuiz } from '../../../../services/quizApi'
 import DetailsPanel from '../DetailsPanel'
 import QuestionEditor from './QuestionForm/QuestionEditor'
 import { QuestionRecord, QuestionFormState, QUESTION_TYPES } from './types'
@@ -31,6 +32,8 @@ const ContributorQuizBuilder: React.FC = () => {
   const [stage, setStage] = useState<'details' | 'editor' | 'done'>('details')
   const [questions, setQuestions] = useState<QuestionRecord[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Question form state
   const [qType, setQType] = useState<string>(QUESTION_TYPES[0])
@@ -107,26 +110,49 @@ const ContributorQuizBuilder: React.FC = () => {
     )
   }
 
-  const finishCreate = () => {
-    const stored = JSON.parse(localStorage.getItem('contributor_quizzes') || '[]')
-    const newQuiz = {
-      id: `cq_${Date.now()}`,
-      title: name,
-      category,
-      subcategory,
-      tags,
-      numQuestions,
-      totalTimeMinutes,
-      questions
+  const finishCreate = async () => {
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      // Find category ID by name (assuming categories match the seed data)
+      const categoryIndex = quizCategories.indexOf(category)
+      const categoryId = categoryIndex >= 0 ? categoryIndex + 1 : undefined
+
+      // Map local question format to API format
+      const apiQuestions = questions.map((q) => ({
+        type: q.type,
+        data: q.data,
+      }))
+
+      // Create quiz via API
+      const response = await apiCreateQuiz({
+        title: name,
+        description: subcategory || undefined,
+        categoryId,
+        difficulty: 'medium', // Default difficulty
+        timeLimit: totalTimeMinutes * 60, // Convert minutes to seconds
+        questions: apiQuestions,
+      })
+
+      console.log('Quiz created successfully:', response)
+      setStage('done')
+      setTimeout(() => navigate('/'), 1500)
+    } catch (err: any) {
+      console.error('Failed to create quiz:', err)
+      setError(err.response?.data?.error || err.message || 'Failed to create quiz')
+      setIsSubmitting(false)
     }
-    stored.unshift(newQuiz)
-    localStorage.setItem('contributor_quizzes', JSON.stringify(stored))
-    setStage('done')
-    setTimeout(() => navigate('/'), 800)
   }
 
   return (
     <Box sx={{ p: 3 }}>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+
       {stage === 'details' && (
         <Box>
           <Typography variant="h5">Create Quiz — Details</Typography>
@@ -195,11 +221,20 @@ const ContributorQuizBuilder: React.FC = () => {
       )}
 
       {stage === 'done' && (
-        <Box>
-          <Typography variant="h5">Quiz created</Typography>
-          <Typography variant="body2">
-            The quiz was saved locally and you will be redirected shortly.
-          </Typography>
+        <Box sx={{ textAlign: 'center', py: 4 }}>
+          {isSubmitting ? (
+            <>
+              <CircularProgress sx={{ mb: 2 }} />
+              <Typography variant="h5">Creating quiz...</Typography>
+            </>
+          ) : (
+            <>
+              <Typography variant="h5">Quiz created successfully!</Typography>
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                Redirecting to dashboard...
+              </Typography>
+            </>
+          )}
         </Box>
       )}
     </Box>

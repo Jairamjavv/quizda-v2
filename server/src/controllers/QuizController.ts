@@ -9,6 +9,7 @@ import { QuizBusinessService } from "../services/QuizBusinessService";
 import { QuizRepository } from "../repositories";
 import { getSessionFromRequest } from "../utils/session";
 import { getDb } from "../db";
+import { R2Service } from "../services/R2Service";
 import {
   sanitizeQuizTitle,
   sanitizeQuizDescription,
@@ -72,6 +73,49 @@ export class QuizController {
   }
 
   /**
+   * GET /api/quizzes/:id/questions
+   * Get quiz questions from R2 storage
+   */
+  static async getQuizQuestions(
+    c: Context<{ Bindings: Env; Variables: Variables }>
+  ) {
+    try {
+      const id = parseInt(c.req.param("id"));
+
+      if (isNaN(id)) {
+        return c.json({ error: "Invalid quiz ID" }, 400);
+      }
+
+      const db = getDb(c.env);
+      const quizRepo = new QuizRepository(db);
+      const quizService = new QuizBusinessService(quizRepo);
+      const r2Service = new R2Service(c.env.MY_BUCKET);
+
+      // Get quiz to get R2 key
+      const quiz = await quizService.getQuizById(id);
+
+      if (!quiz) {
+        return c.json({ error: "Quiz not found" }, 404);
+      }
+
+      if (!quiz.r2Key) {
+        return c.json({ error: "Quiz has no questions" }, 404);
+      }
+
+      // Fetch questions from R2
+      const questions = await r2Service.getQuizQuestions(quiz.r2Key);
+
+      return c.json({ questions });
+    } catch (error: any) {
+      console.error("GetQuizQuestions error:", error);
+      return c.json(
+        { error: error.message || "Failed to fetch quiz questions" },
+        500
+      );
+    }
+  }
+
+  /**
    * POST /api/quizzes
    * Create new quiz (requires authentication)
    */
@@ -106,7 +150,9 @@ export class QuizController {
       const db = getDb(c.env);
       const quizRepo = new QuizRepository(db);
       const quizService = new QuizBusinessService(quizRepo);
+      const r2Service = new R2Service(c.env.MY_BUCKET);
 
+      // Create quiz first to get ID
       const quiz = await quizService.createQuiz(
         {
           title: sanitizedTitle,
@@ -118,6 +164,33 @@ export class QuizController {
         },
         session.userId
       );
+
+      // If questions are provided, upload to R2
+      if (
+        input.questions &&
+        Array.isArray(input.questions) &&
+        input.questions.length > 0
+      ) {
+        const r2Key = await r2Service.uploadQuizQuestions(
+          quiz.id,
+          input.questions
+        );
+
+        // Update quiz with R2 key and question count
+        await quizService.updateQuiz(
+          quiz.id,
+          {
+            r2Key,
+            totalQuestions: input.questions.length,
+          },
+          session.userId
+        );
+
+        return c.json(
+          { ...quiz, r2Key, totalQuestions: input.questions.length },
+          201
+        );
+      }
 
       return c.json(quiz, 201);
     } catch (error: any) {

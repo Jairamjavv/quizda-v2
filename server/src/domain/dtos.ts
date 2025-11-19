@@ -47,6 +47,8 @@ export interface QuizDTO {
   createdBy?: string;
   createdAt: string;
   updatedAt: string;
+  r2Key?: string | null;
+  totalQuestions?: number;
 }
 
 export interface CreateQuizDTO {
@@ -67,6 +69,8 @@ export interface UpdateQuizDTO {
   isPublished?: boolean;
   timeLimit?: number;
   passingScore?: number;
+  r2Key?: string;
+  totalQuestions?: number;
 }
 
 // Question DTOs

@@ -16,6 +16,11 @@ quizRoutes.get("/", (c) => QuizController.getQuizzes(c));
 // GET /api/quizzes/:id - Get quiz by ID (public)
 quizRoutes.get("/:id", (c) => QuizController.getQuizById(c));
 
+// GET /api/quizzes/:id/questions - Get quiz questions from R2 (requires authentication)
+quizRoutes.get("/:id/questions", requireAuth, (c) =>
+  QuizController.getQuizQuestions(c)
+);
+
 // POST /api/quizzes - Create new quiz (requires contributor or admin role)
 quizRoutes.post("/", requireRole("contributor", "admin"), (c) =>
   QuizController.createQuiz(c)

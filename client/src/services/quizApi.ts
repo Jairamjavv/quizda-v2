@@ -78,6 +78,21 @@ export interface QuizResponse {
   totalTimeMinutes?: number;
   questionsCount: number;
   questions?: any[];
+  r2Key?: string | null;
+  totalQuestions?: number;
+  difficulty?: "easy" | "medium" | "hard";
+  description?: string | null;
+  isPublished?: boolean;
+}
+
+export interface CreateQuizRequest {
+  title: string;
+  description?: string;
+  categoryId?: number;
+  difficulty?: "easy" | "medium" | "hard";
+  timeLimit?: number;
+  tags?: number[];
+  questions?: any[];
 }
 
 // ============ API Calls ============
@@ -156,6 +171,28 @@ export const apiForgotPassword = async (
  */
 export const apiGetQuizzes = async (): Promise<QuizResponse[]> => {
   const response = await apiClient.get<QuizResponse[]>("/api/quizzes");
+  return response.data;
+};
+
+/**
+ * Create a new quiz
+ */
+export const apiCreateQuiz = async (
+  data: CreateQuizRequest
+): Promise<QuizResponse> => {
+  const response = await apiClient.post<QuizResponse>("/api/quizzes", data);
+  return response.data;
+};
+
+/**
+ * Get quiz questions by ID
+ */
+export const apiGetQuizQuestions = async (
+  quizId: number | string
+): Promise<{ questions: any[] }> => {
+  const response = await apiClient.get<{ questions: any[] }>(
+    `/api/quizzes/${quizId}/questions`
+  );
   return response.data;
 };
 
