@@ -31,6 +31,11 @@ quizRoutes.put("/:id", requireRole("contributor", "admin"), (c) =>
   QuizController.updateQuiz(c)
 );
 
+// PUT /api/quizzes/:id/publish - Publish quiz (requires contributor or admin role)
+quizRoutes.put("/:id/publish", requireRole("contributor", "admin"), (c) =>
+  QuizController.publishQuiz(c)
+);
+
 // DELETE /api/quizzes/:id - Delete quiz (requires admin role)
 quizRoutes.delete("/:id", requireRole("admin"), (c) =>
   QuizController.deleteQuiz(c)

@@ -234,6 +234,40 @@ export class QuizController {
   }
 
   /**
+   * PUT /api/quizzes/:id/publish
+   * Publish quiz (requires authentication and ownership)
+   */
+  static async publishQuiz(
+    c: Context<{ Bindings: Env; Variables: Variables }>
+  ) {
+    try {
+      const id = parseInt(c.req.param("id"));
+
+      if (isNaN(id)) {
+        return c.json({ error: "Invalid quiz ID" }, 400);
+      }
+
+      // Get authenticated user session
+      const session = getSessionFromRequest(c.req.raw);
+
+      if (!session) {
+        return c.json({ error: "Authentication required" }, 401);
+      }
+
+      const db = getDb(c.env);
+      const quizRepo = new QuizRepository(db);
+      const quizService = new QuizBusinessService(quizRepo);
+
+      const quiz = await quizService.publishQuiz(id, session.userId);
+
+      return c.json(quiz);
+    } catch (error: any) {
+      console.error("PublishQuiz error:", error);
+      return c.json({ error: error.message || "Failed to publish quiz" }, 500);
+    }
+  }
+
+  /**
    * DELETE /api/quizzes/:id
    * Delete quiz (requires authentication and ownership)
    */
