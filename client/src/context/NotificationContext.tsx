@@ -1,53 +1,40 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import { Snackbar, Alert } from '@mui/material'
+import { useReduxUI } from '../hooks/useReduxUI'
 
-type NotifyOptions = {
-  severity?: 'success' | 'error' | 'info' | 'warning'
-  duration?: number
-}
-
-type NotifyFn = (message: string, opts?: NotifyOptions) => void
-
-const NotificationContext = createContext<{
-  notify: NotifyFn
-} | null>(null)
-
-export const useNotification = () => {
-  const ctx = useContext(NotificationContext)
-  if (!ctx) throw new Error('useNotification must be used within NotificationProvider')
-  return ctx.notify
-}
-
+/**
+ * NotificationProvider now uses Redux for state management
+ * This provides a UI component that displays notifications from Redux store
+ */
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
-  const [open, setOpen] = useState(false)
-  const [message, setMessage] = useState('')
-  const [severity, setSeverity] = useState<NotifyOptions['severity']>('info')
-  const [duration, setDuration] = useState<number | undefined>(4000)
-
-  const notify: NotifyFn = (msg, opts) => {
-    setMessage(msg)
-    setSeverity(opts?.severity || 'info')
-    setDuration(opts?.duration ?? 4000)
-    setOpen(true)
-  }
+  const { notification, hideNotification } = useReduxUI()
 
   return (
-    <NotificationContext.Provider value={{ notify }}>
+    <>
       {children}
       {/* Accessible live region for screen readers */}
-      <div aria-live="polite" aria-atomic="true" style={{ position: 'absolute', left: -9999 }}>{message}</div>
+      <div aria-live="polite" aria-atomic="true" style={{ position: 'absolute', left: -9999 }}>
+        {notification.message}
+      </div>
       <Snackbar
-        open={open}
-        autoHideDuration={duration}
-        onClose={() => setOpen(false)}
+        open={notification.open}
+        autoHideDuration={notification.duration}
+        onClose={hideNotification}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert onClose={() => setOpen(false)} severity={severity} sx={{ width: '100%' }}>
-          {message}
+        <Alert onClose={hideNotification} severity={notification.severity} sx={{ width: '100%' }}>
+          {notification.message}
         </Alert>
       </Snackbar>
-    </NotificationContext.Provider>
+    </>
   )
 }
 
-export default NotificationContext
+/**
+ * Legacy hook for backwards compatibility
+ * Now wraps the Redux-based useReduxUI hook
+ */
+export const useNotification = () => {
+  const { notify } = useReduxUI()
+  return notify
+}
