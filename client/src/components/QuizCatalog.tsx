@@ -3,9 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Box, Grid, Paper, MenuItem, Select, InputLabel, FormControl, Pagination } from '@mui/material'
 import QuizWindow from './QuizComponents/QuizWindow'
 import { useQuizzes } from '../hooks'
+import { useCategories } from '../hooks/useCategories'
 import { Button, Text, Badge, Input } from './ui'
 import { spacing } from '../theme/constants'
-import quizCategories from '../data/quizCategories'
 
 type QuizRecord = {
   id: string
@@ -32,6 +32,7 @@ const QuizCatalog: React.FC = () => {
   const [openQuiz, setOpenQuiz] = useState<QuizRecord | null>(null)
   const [page, setPage] = useState(1)
   const pageSize = 6
+  const { categoryNames: categories } = useCategories()
 
   // Transform quizzes to QuizRecord format (preserve fields from API)
   const quizzes: QuizRecord[] = useMemo(() =>
@@ -91,7 +92,7 @@ const QuizCatalog: React.FC = () => {
             onChange={(e: any) => setSelectedCategory(e.target.value)}
           >
             <MenuItem value={''}>All</MenuItem>
-            {quizCategories.map((c) => (
+            {categories.map((c) => (
               <MenuItem key={c} value={c}>{c}</MenuItem>
             ))}
           </Select>

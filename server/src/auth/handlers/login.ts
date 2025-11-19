@@ -35,12 +35,22 @@ export async function handleLogin(
         return c.json({ error: "User not found" }, 404);
       }
     } else if (input.email && input.password) {
-      // Fallback: Login with email/password
+      // Login with username (input.email field now contains username)
+      // First, try to find user by username
       user = await db
         .select()
         .from(users)
-        .where(eq(users.email, input.email))
+        .where(eq(users.username, input.email)) // input.email actually contains username from frontend
         .get();
+
+      // If not found by username, try email (backward compatibility)
+      if (!user) {
+        user = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, input.email))
+          .get();
+      }
 
       if (!user || !user.passwordHash) {
         return c.json({ error: "Invalid credentials" }, 401);

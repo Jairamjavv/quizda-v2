@@ -12,8 +12,8 @@ import {
   Select,
   MenuItem
 } from '@mui/material'
-import { quizCategories } from '../../../data/quizCategories'
 import { useNavigate } from 'react-router-dom'
+import { useCategories } from '../../../hooks/useCategories'
 
 type Props = {
   open: boolean
@@ -22,10 +22,11 @@ type Props = {
 }
 
 const AddQuizDialog: React.FC<Props> = ({ open, onClose, onAdd }) => {
+  const { categoryNames } = useCategories()
   const [title, setTitle] = useState('')
   const [questionsCount, setQuestionsCount] = useState<number>(5)
   const [totalTimeMinutes, setTotalTimeMinutes] = useState<number>(5)
-  const [category, setCategory] = useState<string>(quizCategories[0])
+  const [category, setCategory] = useState<string>(categoryNames[0] || '')
 
   const navigate = useNavigate()
 
@@ -34,7 +35,7 @@ const AddQuizDialog: React.FC<Props> = ({ open, onClose, onAdd }) => {
     // Navigate to the quiz builder page and pass initial data via location state
     navigate('/contributor/new-quiz', { state: { title: title.trim(), category, totalTimeMinutes } })
     setTitle('')
-    setCategory(quizCategories[0] || '')
+    setCategory(categoryNames[0] || '')
     onClose()
   }
 
@@ -48,7 +49,7 @@ const AddQuizDialog: React.FC<Props> = ({ open, onClose, onAdd }) => {
           <FormControl fullWidth margin="normal">
             <InputLabel id="category-select-label">Category</InputLabel>
             <Select labelId="category-select-label" value={category} label="Category" onChange={(e) => setCategory(e.target.value)}>
-              {quizCategories.map((c) => (
+              {categoryNames.map((c) => (
                 <MenuItem key={c} value={c}>{c}</MenuItem>
               ))}
             </Select>

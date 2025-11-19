@@ -105,6 +105,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onOpenForgot }) => {
 
         <TextField
           label="Username"
+          type="text"
           value={form.username}
           onChange={handle('username')}
           error={!!errors.username}

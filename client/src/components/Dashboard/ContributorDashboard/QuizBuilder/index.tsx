@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Box, Typography, CircularProgress, Alert } from '@mui/material'
-import quizCategories from '../../../../data/quizCategories'
 import { apiCreateQuiz } from '../../../../services/quizApi'
+import { useCategories } from '../../../../hooks/useCategories'
 import DetailsPanel from '../DetailsPanel'
 import QuestionEditor from './QuestionForm/QuestionEditor'
 import { QuestionRecord, QuestionFormState, QUESTION_TYPES } from './types'
@@ -18,10 +18,11 @@ const ContributorQuizBuilder: React.FC = () => {
   const { state } = useLocation()
   const loc = (state || {}) as LocationState
   const navigate = useNavigate()
+  const { categoryNames } = useCategories()
 
   // Quiz details state
   const [name, setName] = useState<string>(loc.title || '')
-  const [category, setCategory] = useState<string>(loc.category || quizCategories[0])
+  const [category, setCategory] = useState<string>(loc.category || categoryNames[0] || '')
   const [subcategory, setSubcategory] = useState<string>('')
   const [tagsText, setTagsText] = useState<string>('')
   const [tags, setTags] = useState<string[]>([])
@@ -115,8 +116,8 @@ const ContributorQuizBuilder: React.FC = () => {
     setError(null)
 
     try {
-      // Find category ID by name (assuming categories match the seed data)
-      const categoryIndex = quizCategories.indexOf(category)
+      // Find category ID by name from the fetched categories
+      const categoryIndex = categoryNames.indexOf(category)
       const categoryId = categoryIndex >= 0 ? categoryIndex + 1 : undefined
 
       // Map local question format to API format
@@ -172,7 +173,7 @@ const ContributorQuizBuilder: React.FC = () => {
               setNumQuestions={setNumQuestions}
               totalTimeMinutes={totalTimeMinutes}
               setTotalTimeMinutes={setTotalTimeMinutes}
-              quizCategories={quizCategories}
+              quizCategories={categoryNames}
               onNext={() => setStage('editor')}
               onCancel={() => navigate(-1)}
             />

@@ -6,8 +6,8 @@
  * Now uses cookie-based authentication with automatic token refresh.
  */
 
-import { apiClient } from "./api";
-import { sessionManager } from "./sessionManager";
+import { apiClient } from './api';
+import { sessionManager } from './sessionManager';
 
 // ============ Types ============
 
@@ -23,7 +23,7 @@ export interface HealthResponse {
 export interface LoginRequest {
   email: string;
   password: string;
-  role: "contributor" | "attempter" | "admin";
+  role: 'contributor' | 'attempter' | 'admin';
   remember?: boolean;
   firebaseUid?: string;
 }
@@ -45,7 +45,7 @@ export interface RegisterRequest {
   email: string;
   username: string;
   password: string;
-  role: "contributor" | "attempter" | "admin";
+  role: 'contributor' | 'attempter' | 'admin';
   firebaseUid: string;
 }
 
@@ -80,7 +80,7 @@ export interface QuizResponse {
   questions?: any[];
   r2Key?: string | null;
   totalQuestions?: number;
-  difficulty?: "easy" | "medium" | "hard";
+  difficulty?: 'easy' | 'medium' | 'hard';
   description?: string | null;
   isPublished?: boolean;
 }
@@ -89,7 +89,7 @@ export interface CreateQuizRequest {
   title: string;
   description?: string;
   categoryId?: number;
-  difficulty?: "easy" | "medium" | "hard";
+  difficulty?: 'easy' | 'medium' | 'hard';
   timeLimit?: number;
   tags?: number[];
   questions?: any[];
@@ -101,7 +101,7 @@ export interface CreateQuizRequest {
  * Test endpoint - verifies connection to Worker
  */
 export const apiHello = async (): Promise<HelloResponse> => {
-  const response = await apiClient.get<HelloResponse>("/api/hello");
+  const response = await apiClient.get<HelloResponse>('/api/hello');
   return response.data;
 };
 
@@ -109,7 +109,7 @@ export const apiHello = async (): Promise<HelloResponse> => {
  * Health check endpoint
  */
 export const apiHealth = async (): Promise<HealthResponse> => {
-  const response = await apiClient.get<HealthResponse>("/api/health");
+  const response = await apiClient.get<HealthResponse>('/api/health');
   return response.data;
 };
 
@@ -117,14 +117,14 @@ export const apiHealth = async (): Promise<HealthResponse> => {
  * User login - now uses cookie-based authentication
  */
 export const apiLogin = async (data: LoginRequest): Promise<LoginResponse> => {
-  const response = await apiClient.post<LoginResponse>("/api/login", data);
+  const response = await apiClient.post<LoginResponse>('/api/login', data);
 
   // Cookies are set automatically by the server
   // Update session manager with user data
   if (response.data.user) {
     sessionManager.setUser({
       ...response.data.user,
-      role: response.data.user.role as "admin" | "contributor" | "attempter",
+      role: response.data.user.role as 'admin' | 'contributor' | 'attempter',
     });
   }
 
@@ -134,20 +134,15 @@ export const apiLogin = async (data: LoginRequest): Promise<LoginResponse> => {
 /**
  * User registration - now uses cookie-based authentication
  */
-export const apiRegister = async (
-  data: RegisterRequest
-): Promise<RegisterResponse> => {
-  const response = await apiClient.post<RegisterResponse>(
-    "/api/register",
-    data
-  );
+export const apiRegister = async (data: RegisterRequest): Promise<RegisterResponse> => {
+  const response = await apiClient.post<RegisterResponse>('/api/register', data);
 
   // Cookies are set automatically by the server
   // Update session manager with user data
   if (response.data.user) {
     sessionManager.setUser({
       ...response.data.user,
-      role: response.data.user.role as "admin" | "contributor" | "attempter",
+      role: response.data.user.role as 'admin' | 'contributor' | 'attempter',
     });
   }
 
@@ -159,10 +154,7 @@ export const apiRegister = async (
 export const apiForgotPassword = async (
   data: ForgotPasswordRequest
 ): Promise<ForgotPasswordResponse> => {
-  const response = await apiClient.post<ForgotPasswordResponse>(
-    "/api/forgot-password",
-    data
-  );
+  const response = await apiClient.post<ForgotPasswordResponse>('/api/forgot-password', data);
   return response.data;
 };
 
@@ -170,17 +162,15 @@ export const apiForgotPassword = async (
  * Get all quizzes
  */
 export const apiGetQuizzes = async (): Promise<QuizResponse[]> => {
-  const response = await apiClient.get<QuizResponse[]>("/api/quizzes");
+  const response = await apiClient.get<QuizResponse[]>('/api/quizzes');
   return response.data;
 };
 
 /**
  * Create a new quiz
  */
-export const apiCreateQuiz = async (
-  data: CreateQuizRequest
-): Promise<QuizResponse> => {
-  const response = await apiClient.post<QuizResponse>("/api/quizzes", data);
+export const apiCreateQuiz = async (data: CreateQuizRequest): Promise<QuizResponse> => {
+  const response = await apiClient.post<QuizResponse>('/api/quizzes', data);
   return response.data;
 };
 
@@ -190,9 +180,7 @@ export const apiCreateQuiz = async (
 export const apiGetQuizQuestions = async (
   quizId: number | string
 ): Promise<{ questions: any[] }> => {
-  const response = await apiClient.get<{ questions: any[] }>(
-    `/api/quizzes/${quizId}/questions`
-  );
+  const response = await apiClient.get<{ questions: any[] }>(`/api/quizzes/${quizId}/questions`);
   return response.data;
 };
 
@@ -219,10 +207,7 @@ export const apiCompleteAttempt = async (
     answers: Array<any>;
   }
 ): Promise<any> => {
-  const response = await apiClient.put(
-    `/api/attempts/${attemptId}/complete`,
-    data
-  );
+  const response = await apiClient.put(`/api/attempts/${attemptId}/complete`, data);
   return response.data;
 };
 
@@ -231,11 +216,26 @@ export const apiCompleteAttempt = async (
  */
 export const apiLogout = async (): Promise<void> => {
   try {
-    await apiClient.post("/api/logout");
+    await apiClient.post('/api/logout');
   } catch (error) {
-    console.error("Logout API error:", error);
+    console.error('Logout API error:', error);
   } finally {
     // Clear session manager
     sessionManager.clearUser();
   }
+};
+
+export interface CategoryResponse {
+  id: number;
+  name: string;
+  description?: string;
+  createdAt?: string;
+}
+
+/**
+ * Get all categories
+ */
+export const apiGetCategories = async (): Promise<CategoryResponse[]> => {
+  const response = await apiClient.get<CategoryResponse[]>('/api/categories');
+  return response.data;
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Dialog,
@@ -17,13 +17,7 @@ import {
   Typography
 } from '@mui/material'
 import { QuizMode } from './types'
-import quizCategories from '../../data/quizCategories'
-
-// Convert string list into id/name pairs (id is a slugified name)
-const defaultCategories = quizCategories.map((name) => ({
-  id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-  name,
-}))
+import { useCategories } from '../../hooks/useCategories'
 
 type Props = {
   open: boolean
@@ -31,6 +25,13 @@ type Props = {
 }
 
 const NewQuizDialog: React.FC<Props> = ({ open, onClose }) => {
+  const { categoryNames } = useCategories()
+  // Convert string list into id/name pairs (id is a slugified name)
+  const defaultCategories = useMemo(() => categoryNames.map((name) => ({
+    id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+    name,
+  })), [categoryNames])
+  
   const [mode, setMode] = useState<QuizMode>('timed')
   const [category, setCategory] = useState<string>(defaultCategories[0]?.id || '')
   const [minutes, setMinutes] = useState<number>(1)

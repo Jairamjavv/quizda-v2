@@ -12,7 +12,7 @@ import type { User } from "../domain/models";
 import type { CreateUserDTO } from "../domain/dtos";
 
 export class UserRepository {
-  constructor(private db: DrizzleD1Database) {}
+  constructor(private db: DrizzleD1Database) { }
 
   /**
    * Find user by ID
@@ -35,6 +35,19 @@ export class UserRepository {
       .select()
       .from(users)
       .where(eq(users.email, email))
+      .get();
+
+    return result as User | null;
+  }
+
+  /**
+   * Find user by username
+   */
+  async findByUsername(username: string): Promise<User | null> {
+    const result = await this.db
+      .select()
+      .from(users)
+      .where(eq(users.username, username))
       .get();
 
     return result as User | null;

@@ -4,9 +4,9 @@ import { Box, Grid, Paper, MenuItem, Select, InputLabel, FormControl, Pagination
 import Fuse from 'fuse.js'
 import QuizWindow from './QuizWindow'
 import { useQuizzes } from '../../hooks'
+import { useCategories } from '../../hooks/useCategories'
 import { Button, Text, Badge, Input } from '../ui'
 import { spacing } from '../../theme/constants'
-import quizCategories from '../../data/quizCategories'
 
 type QuizRecord = {
   id: string

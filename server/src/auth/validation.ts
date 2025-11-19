@@ -103,10 +103,10 @@ export function validateLoginInput(input: any): {
   }
 
   if (input.email && input.password) {
-    // Sanitize and validate email
-    const email = sanitizeInput(input.email);
-    if (!isValidEmail(email)) {
-      return { isValid: false, error: "Invalid email format" };
+    // Sanitize input.email (which can be username OR email)
+    const usernameOrEmail = sanitizeInput(input.email);
+    if (!usernameOrEmail) {
+      return { isValid: false, error: "Username or email is required" };
     }
 
     // Check password length (don't validate strength for login)
@@ -114,12 +114,12 @@ export function validateLoginInput(input: any): {
       return { isValid: false, error: "Invalid password" };
     }
 
-    // Email/password login is valid
+    // Username/email + password login is valid
     return { isValid: true };
   }
 
   return {
     isValid: false,
-    error: "Email and password or firebaseUid required",
+    error: "Username/email and password or firebaseUid required",
   };
 }
