@@ -36,7 +36,7 @@ export const QuestionDisplay: React.FC<Props> = ({
           {question.text}
         </Typography>
         <IconButton onClick={onToggleBookmark} aria-label="bookmark">
-          {bookmarked ? (
+          {isBookmarked ? (
             <BookmarkIcon sx={{ color: 'primary.main' }} />
           ) : (
             <BookmarkBorderIcon sx={{ color: 'text.primary' }} />

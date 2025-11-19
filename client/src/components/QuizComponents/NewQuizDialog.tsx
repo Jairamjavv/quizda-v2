@@ -16,13 +16,14 @@ import {
   Box,
   Typography
 } from '@mui/material'
-import { QuizMode, QuizCategory } from './types'
+import { QuizMode } from './types'
+import quizCategories from '../../data/quizCategories'
 
-const defaultCategories: QuizCategory[] = [
-  { id: 'gk', name: 'General Knowledge' },
-  { id: 'prog', name: 'Programming' },
-  { id: 'math', name: 'Mathematics' }
-]
+// Convert string list into id/name pairs (id is a slugified name)
+const defaultCategories = quizCategories.map((name) => ({
+  id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+  name,
+}))
 
 type Props = {
   open: boolean
@@ -31,7 +32,7 @@ type Props = {
 
 const NewQuizDialog: React.FC<Props> = ({ open, onClose }) => {
   const [mode, setMode] = useState<QuizMode>('timed')
-  const [category, setCategory] = useState<string>(defaultCategories[0].id)
+  const [category, setCategory] = useState<string>(defaultCategories[0]?.id || '')
   const [minutes, setMinutes] = useState<number>(1)
   const [started] = useState(false)
   const navigate = useNavigate()
@@ -59,7 +60,12 @@ const NewQuizDialog: React.FC<Props> = ({ open, onClose }) => {
           <Box sx={{ mt: 2 }}>
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel id="category-label">Category</InputLabel>
-              <Select labelId="category-label" value={category} label="Category" onChange={(e) => setCategory(e.target.value)}>
+              <Select
+                labelId="category-label"
+                value={category}
+                label="Category"
+                onChange={(e) => setCategory(e.target.value)}
+              >
                 {defaultCategories.map((c) => (
                   <MenuItem key={c.id} value={c.id}>
                     {c.name}
