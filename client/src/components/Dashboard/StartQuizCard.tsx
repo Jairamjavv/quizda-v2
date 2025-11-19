@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Box } from '@mui/material'
 import { Card, Button, Text } from '../ui'
-import NewQuizDialog from '../QuizComponents/NewQuizDialog'
+import NewQuizDialog from '../Quiz/NewQuizDialog'
 import { spacing } from '../../theme/constants'
 
 const StartQuizCard: React.FC = () => {

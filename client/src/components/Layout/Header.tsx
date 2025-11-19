@@ -3,9 +3,9 @@ import { AppBar, Toolbar, IconButton, Menu, MenuItem, Avatar, Box } from '@mui/m
 import { Link, useNavigate } from 'react-router-dom'
 import Brightness4Icon from '@mui/icons-material/Brightness4'
 import Brightness7Icon from '@mui/icons-material/Brightness7'
-import { useSession } from '../services/sessionManager'
-import { Button, Text } from './ui'
-import { spacing } from '../theme/constants'
+import { useSession } from '../../services/sessionManager'
+import { Button, Text } from '../ui'
+import { spacing } from '../../theme/constants'
 
 interface HeaderProps {
   mode: 'light' | 'dark'
@@ -93,9 +93,9 @@ const Header: React.FC<HeaderProps> = ({ mode, onToggleMode }) => {
             <Button component={Link} to="/login" variant="ghost" sx={{ mr: spacing.xs }}>
               Login
             </Button>
-            <Button 
-              component={Link} 
-              to="/register" 
+            <Button
+              component={Link}
+              to="/register"
               variant="outline"
               sx={{ mr: spacing.md }}
             >

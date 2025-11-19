@@ -9,12 +9,12 @@ import ContributorDashboard from './components/Dashboard/ContributorDashboard'
 import AdminDashboard from './components/Dashboard/AdminDashboard'
 import ContributorQuizBuilder from './components/Dashboard/ContributorDashboard/ContributorQuizBuilder'
 import LandingPage from './components/LandingPage/LandingPage'
-import QuizCatalog from './components/QuizCatalog'
+import QuizCatalog from './components/Quiz/QuizCatalog'
 import Login from './components/UserAuthentication/Login/index'
 import Register from './components/UserAuthentication/Register/index'
-import Header from './components/Header'
-import ProtectedRoute from './components/ProtectedRoute'
-import PublicRoute from './components/PublicRoute'
+import Header from './components/Layout/Header'
+import ProtectedRoute from './components/Routing/ProtectedRoute'
+import PublicRoute from './components/Routing/PublicRoute'
 import { usePlatformStatistics } from './hooks'
 
 const App: React.FC = () => {
@@ -40,47 +40,47 @@ const App: React.FC = () => {
             <Route path="/landing" element={<PublicRoute><LandingPage {...landingStats} /></PublicRoute>} />
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-            
+
             {/* Protected routes - require authentication */}
-            <Route 
-              path="/dashboard/attempter" 
+            <Route
+              path="/dashboard/attempter"
               element={
                 <ProtectedRoute requiredRole="attempter">
                   <AttempterDashboard />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/dashboard/contributor" 
+            <Route
+              path="/dashboard/contributor"
               element={
                 <ProtectedRoute requiredRole="contributor">
                   <ContributorDashboard />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/dashboard/admin" 
+            <Route
+              path="/dashboard/admin"
               element={
                 <ProtectedRoute requiredRole="admin">
                   <AdminDashboard />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/contributor/new-quiz" 
+            <Route
+              path="/contributor/new-quiz"
               element={
                 <ProtectedRoute requiredRole="contributor">
                   <ContributorQuizBuilder />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/quiz-catalog" 
+            <Route
+              path="/quiz-catalog"
               element={
                 <ProtectedRoute requiredRole="attempter">
                   <QuizCatalog />
                 </ProtectedRoute>
-              } 
+              }
             />
           </Routes>
         </Container>

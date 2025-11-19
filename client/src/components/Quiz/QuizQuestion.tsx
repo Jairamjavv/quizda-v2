@@ -2,14 +2,14 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-import MCQQuestion from './types/MCQQuestion';
-import TrueFalseQuestion from './types/TrueFalseQuestion';
-import MultipleResponse from './types/MultipleResponse';
-import FillBlank from './types/FillBlank';
-import Matching from './types/Matching';
-import DragDrop from './types/DragDrop';
-import Hotspot from './types/Hotspot';
-import AssertionReasoning from './types/AssertionReasoning';
+import MCQQuestion from '../types/MCQQuestion';
+import TrueFalseQuestion from '../types/TrueFalseQuestion';
+import MultipleResponse from '../types/MultipleResponse';
+import FillBlank from '../types/FillBlank';
+import Matching from '../types/Matching';
+import DragDrop from '../types/DragDrop';
+import Hotspot from '../types/Hotspot';
+import AssertionReasoning from '../types/AssertionReasoning';
 
 type QuizData = any;
 

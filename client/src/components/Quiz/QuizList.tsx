@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { apiGetQuizzes } from '../services/quizApi'
+import { apiGetQuizzes } from '../../services/quizApi'
 import { Grid } from '@mui/material'
-import { Card, Button, Text } from './ui'
-import { spacing } from '../theme/constants'
+import { Card, Button, Text } from '../ui'
+import { spacing } from '../../theme/constants'
 
 type Quiz = {
-  id: number
+  id: string | number
   title: string
   questionsCount: number
 }

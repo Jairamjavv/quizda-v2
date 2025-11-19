@@ -1,6 +1,6 @@
 import React from 'react'
 import { Paper, Typography } from '@mui/material'
-import QuizQuestion from '../../QuizQuestion'
+import QuizQuestion from '../../Quiz/QuizQuestion'
 
 type Props = { previewData: any }
 

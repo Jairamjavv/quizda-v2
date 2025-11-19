@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Box, Grid, Paper, MenuItem, Select, InputLabel, FormControl, Pagination } from '@mui/material'
-import QuizWindow from './QuizComponents/QuizWindow'
-import { useQuizzes } from '../hooks'
-import { Button, Text, Badge, Input } from './ui'
-import { spacing } from '../theme/constants'
+import QuizWindow from './QuizWindow'
+import { useQuizzes } from '../../hooks'
+import { Button, Text, Badge, Input } from '../ui'
+import { spacing } from '../../theme/constants'
 
 type QuizRecord = {
   id: string
@@ -31,7 +31,7 @@ const QuizCatalog: React.FC = () => {
   const pageSize = 6
 
   // Transform quizzes to QuizRecord format
-  const quizzes: QuizRecord[] = useMemo(() => 
+  const quizzes: QuizRecord[] = useMemo(() =>
     fetchedQuizzes.map(q => ({
       id: String(q.id),
       title: q.title,
@@ -39,7 +39,7 @@ const QuizCatalog: React.FC = () => {
       subcategory: '',
       tags: [],
       totalTimeMinutes: 0
-    })), 
+    })),
     [fetchedQuizzes]
   )
 
